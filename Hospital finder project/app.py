@@ -795,4 +795,4 @@ def edit_hospital(hospital_id):
     return render_template('admin/edit_hospital.html', hospital=hospital)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
