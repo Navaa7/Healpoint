@@ -1,0 +1,51 @@
+hospital_id,name,address,city,area,latitude,longitude,type,specialties,emergency,phone,rating
+51,Gem Hospital,45 Pankaja Mill Road,Coimbatore,Ramanathapuram,11.0168,76.9558,Specialty,Gastroenterology|Colorectal Surgery|Laparoscopy,Yes,0422-4388888,4.6
+52,Government Headquarters Hospital,Collectorate Road,Krishnagiri,Town,12.5266,78.2137,General,General Medicine|Emergency|Surgery,Yes,04343-230224,3.9
+53,Aditi Hospital,12 Nehru Street,Krishnagiri,Mathur,12.5150,78.2200,General,General Medicine|Pediatrics|Gynecology,No,04343-225566,4.0
+54,Government District Hospital,Hospital Road,Ranipet,Town,12.9224,79.3328,General,General Medicine|Emergency|Surgery,Yes,04172-222333,3.8
+55,Sooriya Hospital,25 Arcot Road,Ranipet,Walajah,12.9200,79.3400,General,General Medicine|Orthopedics|Cardiology,Yes,04172-235678,4.1
+56,Government Headquarters Hospital,Anna Salai,Tiruvannamalai,Town,12.2253,79.0747,General,General Medicine|Emergency|Pediatrics,Yes,04175-252252,3.9
+57,Sri Venkateshwara Hospital,Polur Road,Tiruvannamalai,Polur,12.2300,79.0800,General,General Medicine|Surgery|Gynecology,No,04175-256789,4.0
+58,Government Hospital,Hospital Street,Kallakurichi,Town,11.7380,78.9620,General,General Medicine|Emergency|Surgery,Yes,04151-222100,3.7
+59,Annai Hospital,Sankarapuram Road,Kallakurichi,Sankarapuram,11.7400,78.9700,General,General Medicine|Pediatrics|Gynecology,No,04151-225500,4.0
+60,Government Headquarters Hospital,Cuddalore Main Road,Cuddalore,Town,11.7480,79.7680,General,General Medicine|Emergency|Surgery,Yes,04142-230230,3.9
+61,Priyadarshini Hospital,89 Gandhi Nagar,Cuddalore,Gandhi Nagar,11.7500,79.7700,General,General Medicine|Cardiology|Orthopedics,Yes,04142-235999,4.1
+62,Government District Hospital,Ooty Road,Nilgiris,Udhagamandalam,11.4102,76.6950,General,General Medicine|Emergency|Pediatrics,Yes,0423-2443200,4.0
+63,Lawsons Bay Hospital,Ettines Road,Nilgiris,Ooty,11.4130,76.7050,General,General Medicine|Surgery|Gynecology,No,0423-2444500,4.2
+64,Government Headquarters Hospital,NH Road,Tiruppur,Town,11.1085,77.3411,General,General Medicine|Emergency|Surgery,Yes,0421-2240222,4.0
+65,Tiruppur Kidney Centre,Avinashi Road,Tiruppur,Avinashi Road,11.1100,77.3500,Specialty,Nephrology|Urology|Dialysis,Yes,0421-2256789,4.4
+66,Curewell Hospital,22 Kamaraj Road,Tiruppur,Town,11.1050,77.3380,General,General Medicine|Cardiology|Pediatrics,No,0421-2245678,4.1
+67,Government Headquarters Hospital,Collectorate Road,Karur,Town,10.9601,78.0766,General,General Medicine|Emergency|Surgery,Yes,04324-262000,3.9
+68,Rajeswari Hospital,54 Kovai Road,Karur,Kovai Road,10.9650,78.0800,General,General Medicine|Gynecology|Pediatrics,No,04324-265500,4.0
+69,Government Perambalur Medical College,NH Road,Perambalur,Town,11.2330,78.8800,General,General Medicine|Emergency|Surgery,Yes,04328-222333,3.8
+70,Annai Theresa Hospital,Bus Stand Road,Perambalur,Town,11.2350,78.8850,General,General Medicine|Pediatrics|Surgery,No,04328-224400,3.9
+71,Government Ariyalur District Hospital,Collectorate Road,Ariyalur,Town,11.1400,79.0780,General,General Medicine|Emergency|Pediatrics,Yes,04329-220100,3.7
+72,Selvi Hospital,Trichy Road,Ariyalur,Town,11.1420,79.0800,General,General Medicine|Surgery|Gynecology,No,04329-222200,3.9
+73,Government Headquarters Hospital,Hospital Road,Mayiladuthurai,Town,11.1035,79.6520,General,General Medicine|Emergency|Surgery,Yes,04364-222444,3.9
+74,Swasthik Hospital,Sirkazhi Road,Mayiladuthurai,Town,11.1050,79.6550,General,General Medicine|Cardiology|Pediatrics,No,04364-224500,4.0
+75,Government Tiruvarur District Hospital,Mannargudi Road,Tiruvarur,Town,10.7730,79.6370,General,General Medicine|Emergency|Surgery,Yes,04366-222200,3.8
+76,Saranya Hospital,Nagapattinam Road,Tiruvarur,Town,10.7750,79.6400,General,General Medicine|Gynecology|Pediatrics,No,04366-224400,3.9
+77,Government Headquarters Hospital,Collectorate Road,Ramanathapuram,Town,9.3639,78.8395,General,General Medicine|Emergency|Surgery,Yes,04567-220100,3.8
+78,Annai Hospital,Madurai Road,Ramanathapuram,Town,9.3660,78.8420,General,General Medicine|Pediatrics|Surgery,No,04567-222300,4.0
+79,Government Virudhunagar Medical College,Sivakasi Road,Virudhunagar,Town,9.5810,77.9624,General,General Medicine|Emergency|Surgery,Yes,04562-243500,4.0
+80,Alpha Hospital,Railway Station Road,Virudhunagar,Town,9.5830,77.9650,General,General Medicine|Cardiology|Orthopedics,Yes,04562-245600,4.1
+81,Government Headquarters Hospital,Hospital Road,Sivaganga,Town,9.8477,78.4800,General,General Medicine|Emergency|Pediatrics,Yes,04575-241100,3.8
+82,Priya Hospital,Madurai Road,Sivaganga,Town,9.8500,78.4830,General,General Medicine|Surgery|Gynecology,No,04575-243300,4.0
+83,Government Dindigul Medical College,Trichy Road,Dindigul,Town,10.3624,77.9695,General,General Medicine|Emergency|Surgery,Yes,0451-2422444,4.0
+84,Vasan Health Care,8 Palani Road,Dindigul,Palani Road,10.3650,77.9720,Specialty,Ophthalmology|ENT|Dental,No,0451-2436789,4.3
+85,Government Headquarters Hospital,Collectorate Road,Tenkasi,Town,8.9593,77.3152,General,General Medicine|Emergency|Surgery,Yes,04633-220100,3.8
+86,Vijaya Hospital Tenkasi,Courtallam Road,Tenkasi,Town,8.9610,77.3180,General,General Medicine|Pediatrics|Gynecology,No,04633-222200,4.0
+87,Government Headquarters Hospital,Hospital Road,Thoothukudi,Town,8.7642,78.1348,General,General Medicine|Emergency|Surgery,Yes,0461-2322222,4.0
+88,Nazareth Hospital,Doctors Colony,Thoothukudi,Town,8.7660,78.1370,General,General Medicine|Cardiology|Neurology,Yes,0461-2325678,4.3
+89,Government Kanyakumari Medical College,Asaripallam,Kanyakumari,Nagercoil,8.1833,77.4119,General,General Medicine|Emergency|Surgery,Yes,04652-225500,4.0
+90,Cape Hospital,Kovalam Road,Kanyakumari,Nagercoil,8.1850,77.4150,General,General Medicine|Orthopedics|Pediatrics,Yes,04652-227700,4.2
+91,Government Headquarters Hospital,Collector Office Road,Tirupattur,Town,12.4960,78.5730,General,General Medicine|Emergency|Surgery,Yes,04179-220200,3.8
+92,SKS Hospital,Chennai Road,Tirupattur,Town,12.4980,78.5760,General,General Medicine|Cardiology|Surgery,Yes,04179-223300,4.1
+93,Government Headquarters Hospital,Collectorate Road,Chengalpattu,Town,12.6921,79.9764,General,General Medicine|Emergency|Pediatrics,Yes,044-27426100,4.0
+94,Saveetha Medical College,Thandalam,Chengalpattu,Thandalam,12.8231,79.9800,General,General Medicine|Surgery|Cardiology,Yes,044-26801168,4.2
+95,Government Headquarters Hospital,Collector Office Road,Tenkasi,Courtallam,8.9300,77.2800,General,General Medicine|Emergency|Surgery,Yes,04633-281100,3.7
+96,Government District Hospital,NH 44,Tenali,Guntur,16.2430,80.6400,General,General Medicine|Emergency|Surgery,Yes,04162-220100,3.8
+97,Government Headquarters Hospital,Hospital Street,Namakkal,Town,11.2189,78.1674,General,General Medicine|Emergency|Surgery,Yes,04286-220100,3.9
+98,Shanmuga Hospital,Salem Road,Namakkal,Town,11.2210,78.1700,Specialty,Cardiology|Neurology|Orthopedics,Yes,04286-224400,4.3
+99,Government Headquarters Hospital,Collectorate Road,Theni,Town,10.0104,77.4770,General,General Medicine|Emergency|Surgery,Yes,04546-252100,3.9
+100,Theni Government Medical College,Theni Allinagaram,Theni,Town,10.0120,77.4800,General,General Medicine|Surgery|Pediatrics,Yes,04546-254400,4.0

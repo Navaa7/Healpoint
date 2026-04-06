@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — HealPoint</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/admin_login.css') }}" />
+</head>
+<body>
+
+  <!-- Animated background layers -->
+  <div class="bg-grid"></div>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+
+  <!-- Back to user login -->
+  <a class="back-link" href="{{ url_for('login') }}">← User Login</a>
+
+
+  <!-- ══════════════════════════════════
+       ADMIN LOGIN CARD
+  ══════════════════════════════════ -->
+  <div class="admin-card">
+
+    <!-- Card header -->
+    <div class="card-top">
+
+      <!-- Shield icon -->
+      <div class="shield-wrap">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 7v6c0 5.25 3.75 10.15 9 11.25C17.25 23.15 21 18.25 21 13V7L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/>
+        </svg>
+      </div>
+
+      <h1 class="card-title">Admin Login</h1>
+      <p  class="card-sub">Authorized personnel only</p>
+
+      <span class="auth-badge">
+        <span class="auth-dot"></span>
+        Secure Access
+      </span>
+
+    </div>
+
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash-msg {{ category }}">
+            {% if category == 'error' %}🚫{% elif category == 'success' %}✅{% else %}ℹ️{% endif %}
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+
+    <!-- Admin login form — original logic untouched -->
+    <form action="{{ url_for('admin_login') }}" method="POST">
+
+      <!-- Email -->
+      <div class="field-group">
+        <label class="field-label" for="email">Admin Email</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input
+            class="form-input"
+            type="email" id="email" name="email"
+            placeholder="Enter admin email"
+            required autocomplete="email"
+          />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="field-group">
+        <label class="field-label" for="password">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔐</span>
+          <input
+            class="form-input"
+            type="password" id="password" name="password"
+            placeholder="Enter admin password"
+            required autocomplete="current-password"
+          />
+          <button type="button" class="pw-toggle" id="pwToggle">👁️</button>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-admin">Login as Admin →</button>
+
+    </form>
+
+
+    <!-- Footer links -->
+    <div class="card-foot">
+      Not an admin? <a href="{{ url_for('login') }}">Go to User Login</a>
+      <div class="copy-line">© 2025 HealPoint. All Rights Reserved.</div>
+    </div>
+
+  </div><!-- /admin-card -->
+
+
+  <script>
+  /* Password show / hide */
+  const pwInput  = document.getElementById('password');
+  const pwToggle = document.getElementById('pwToggle');
+  pwToggle.addEventListener('click', () => {
+    const show   = pwInput.type === 'password';
+    pwInput.type = show ? 'text' : 'password';
+    pwToggle.textContent = show ? '🙈' : '👁️';
+  });
+  </script>
+
+</body>
+</html>

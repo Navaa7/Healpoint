@@ -1,0 +1,375 @@
+/* ================================================================
+   HEALPOINT — manage_hospitals.css
+   Theme   : Deep blue admin panel
+   Layout  : Same fixed sidebar + scrollable main as dashboard
+================================================================ */
+
+/* ── 1. TOKENS ──────────────────────────────────────────── */
+:root {
+  --blue        : #3b82f6;
+  --blue-dark   : #1d4ed8;
+  --blue-light  : #60a5fa;
+  --blue-glow   : rgba(59,130,246,0.15);
+  --blue-line   : rgba(59,130,246,0.25);
+
+  --bg          : #060d1a;
+  --bg-2        : #0a1628;
+  --sidebar     : #080f1f;
+  --card        : #0d1a30;
+
+  --text-h      : #f0f6ff;
+  --text-b      : #94a3b8;
+  --text-dim    : #3d5068;
+
+  --border      : rgba(255,255,255,0.05);
+  --border-s    : rgba(255,255,255,0.09);
+
+  --green       : #22c55e;
+  --amber       : #f59e0b;
+  --red         : #ef4444;
+
+  --r           : 12px;
+  --r-lg        : 18px;
+  --r-pill      : 100px;
+  --ease        : cubic-bezier(0.16,1,0.3,1);
+
+  --sidebar-w   : 230px;
+}
+
+/* ── 2. RESET ────────────────────────────────────────────── */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html  { font-size:16px; height:100%; }
+body  {
+  font-family : 'Satoshi','DM Sans',sans-serif;
+  background  : var(--bg);
+  color       : var(--text-b);
+  min-height  : 100vh;
+  display     : flex;
+  overflow-x  : hidden;
+}
+a  { text-decoration:none; color:inherit; }
+ul { list-style:none; }
+
+/* ── 3. SIDEBAR (same as dashboard) ─────────────────────── */
+.sidebar {
+  width:var(--sidebar-w); min-height:100vh;
+  background:var(--sidebar); border-right:1px solid var(--border);
+  display:flex; flex-direction:column;
+  position:fixed; top:0; left:0; bottom:0;
+  z-index:100; padding:0 0 24px;
+}
+.sb-logo {
+  display:flex; align-items:center; gap:10px;
+  padding:22px 20px; border-bottom:1px solid var(--border); margin-bottom:8px;
+}
+.sb-logo-mark {
+  width:32px; height:32px; border-radius:9px;
+  background:linear-gradient(135deg,var(--blue-dark),var(--blue));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 12px rgba(59,130,246,0.35); flex-shrink:0;
+}
+.sb-logo-mark svg { width:15px; height:15px; fill:#fff; }
+.sb-logo-text { font-family:'Syne',sans-serif; font-weight:800; font-size:15px; color:var(--text-h); letter-spacing:-0.2px; }
+.sb-logo-sub  { font-size:10px; color:var(--text-dim); margin-top:1px; letter-spacing:0.5px; }
+
+.sb-nav { flex:1; padding:8px 12px; display:flex; flex-direction:column; gap:2px; }
+.sb-link {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; border-radius:10px;
+  font-size:13.5px; font-weight:500; color:var(--text-b);
+  transition:all .2s; cursor:pointer; position:relative;
+}
+.sb-link:hover  { background:rgba(59,130,246,0.08); color:var(--text-h); }
+.sb-link.active {
+  background:rgba(59,130,246,0.12); color:var(--blue-light); font-weight:600;
+}
+.sb-link.active::before {
+  content:''; position:absolute; left:-12px; top:50%;
+  transform:translateY(-50%);
+  width:3px; height:20px; background:var(--blue); border-radius:0 2px 2px 0;
+}
+.sb-icon { font-size:16px; flex-shrink:0; }
+.sb-section-label {
+  font-size:10px; font-weight:700; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--text-dim); padding:12px 12px 4px;
+}
+.sb-admin {
+  margin:0 12px; padding:12px 14px;
+  background:rgba(59,130,246,0.06); border:1px solid var(--blue-line);
+  border-radius:12px; display:flex; align-items:center; gap:10px;
+}
+.sb-admin-av {
+  width:32px; height:32px; border-radius:50%;
+  background:linear-gradient(135deg,var(--blue-dark),var(--blue));
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:800; color:#fff; flex-shrink:0;
+}
+.sb-admin-name { font-size:13px; font-weight:600; color:var(--text-h); }
+.sb-admin-role { font-size:10.5px; color:var(--blue-light); }
+
+/* ── 4. MAIN ─────────────────────────────────────────────── */
+.main {
+  margin-left:var(--sidebar-w); flex:1;
+  padding:0 36px 60px; min-width:0;
+}
+
+.top-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:24px 0 24px; border-bottom:1px solid var(--border);
+  margin-bottom:28px; position:sticky; top:0; z-index:50;
+  background:var(--bg);
+}
+.page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:1.4rem; letter-spacing:-0.02em; color:var(--text-h); }
+.page-sub   { font-size:13px; color:var(--text-dim); margin-top:3px; }
+
+.header-btns { display:flex; align-items:center; gap:10px; }
+
+.btn-primary {
+  padding:9px 20px; border-radius:var(--r-pill);
+  background:var(--blue); color:#fff;
+  font-size:13px; font-weight:700; font-family:inherit;
+  border:none; cursor:pointer; transition:all .2s;
+}
+.btn-primary:hover { background:var(--blue-dark); transform:translateY(-1px); }
+
+.btn-outline {
+  padding:9px 18px; border-radius:var(--r-pill);
+  border:1px solid var(--border-s); background:transparent;
+  color:var(--text-b); font-size:13px; font-weight:500;
+  font-family:inherit; cursor:pointer; transition:all .2s;
+}
+.btn-outline:hover { color:var(--text-h); border-color:var(--blue-line); }
+
+/* Flash messages */
+.flash-msg {
+  padding:11px 14px; border-radius:var(--r);
+  font-size:13px; font-weight:500; margin-bottom:20px;
+  display:flex; align-items:center; gap:8px;
+  animation:fadeUp .4s var(--ease) both;
+}
+.flash-msg.error   { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.25); color:#fca5a5; }
+.flash-msg.success { background:rgba(59,130,246,.10); border:1px solid var(--blue-line); color:var(--blue-light); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+/* ── 5. CSV UPLOAD CARD ──────────────────────────────────── */
+.upload-card {
+  background  : var(--card);
+  border      : 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding     : 24px 26px;
+  margin-bottom: 20px;
+  animation   : cardIn .45s var(--ease) both;
+}
+@keyframes cardIn {
+  from{opacity:0;transform:translateY(14px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+
+.upload-card-title {
+  font-size:14px; font-weight:700; color:var(--text-h);
+  margin-bottom:6px; display:flex; align-items:center; gap:8px;
+}
+.upload-card-sub { font-size:13px; color:var(--text-dim); margin-bottom:14px; line-height:1.6; }
+
+.csv-columns {
+  font-size:12px; font-family:monospace;
+  background:rgba(59,130,246,0.06); border:1px solid var(--blue-line);
+  border-radius:8px; padding:10px 14px; color:var(--blue-light);
+  margin-bottom:18px; word-break:break-all; line-height:1.8;
+}
+
+/* File input styled */
+.file-input-wrap {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.file-input-label {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:9px 18px; border-radius:var(--r);
+  border:1px dashed var(--border-s);
+  background:rgba(255,255,255,0.02);
+  color:var(--text-b); font-size:13px; font-weight:500;
+  cursor:pointer; transition:all .2s;
+}
+.file-input-label:hover { border-color:var(--blue-line); color:var(--blue-light); }
+.file-input-label input[type="file"] { display:none; }
+.file-name { font-size:12.5px; color:var(--text-dim); }
+
+.btn-upload {
+  padding:9px 22px; border-radius:var(--r);
+  background:var(--blue); color:#fff;
+  font-size:13px; font-weight:700; font-family:inherit;
+  border:none; cursor:pointer; transition:all .2s;
+  display:flex; align-items:center; gap:7px;
+}
+.btn-upload:hover { background:var(--blue-dark); }
+
+
+/* ── 6. FILTER BAR ───────────────────────────────────────── */
+.filter-bar {
+  background  : var(--card);
+  border      : 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding     : 16px 20px;
+  margin-bottom: 20px;
+  display     : flex; align-items:center; gap:10px; flex-wrap:wrap;
+  animation   : cardIn .45s .08s var(--ease) both;
+}
+
+.search-wrap {
+  display:flex; align-items:center;
+  background:rgba(255,255,255,0.03);
+  border:1.5px solid var(--border-s);
+  border-radius:var(--r); padding:0 6px 0 14px;
+  flex:1; min-width:200px; max-width:340px;
+  transition:border-color .2s;
+}
+.search-wrap:focus-within { border-color:var(--blue-line); }
+.search-wrap input {
+  flex:1; background:transparent; border:none; outline:none;
+  color:var(--text-h); font-size:13.5px; font-family:inherit;
+  padding:10px 0;
+}
+.search-wrap input::placeholder { color:var(--text-dim); }
+
+.search-btn {
+  padding:7px 14px; border-radius:8px; border:none;
+  background:var(--blue); color:#fff;
+  font-size:12.5px; font-weight:700; font-family:inherit;
+  cursor:pointer; flex-shrink:0; transition:background .2s;
+}
+.search-btn:hover { background:var(--blue-dark); }
+
+.filter-select {
+  padding:10px 14px; border-radius:var(--r);
+  border:1.5px solid var(--border-s);
+  background:rgba(255,255,255,0.03); color:var(--text-b);
+  font-size:13px; font-family:inherit; outline:none; cursor:pointer;
+  transition:border-color .2s; -webkit-appearance:none;
+}
+.filter-select:focus { border-color:var(--blue-line); color:var(--text-h); }
+.filter-select option { background:#0d1a30; color:var(--text-h); }
+
+.clear-link {
+  font-size:13px; color:var(--text-dim);
+  background:transparent; border:none; cursor:pointer;
+  font-family:inherit; padding:10px 4px; transition:color .2s;
+}
+.clear-link:hover { color:var(--text-h); }
+
+
+/* ── 7. HOSPITALS TABLE CARD ─────────────────────────────── */
+.table-card {
+  background  : var(--card);
+  border      : 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow    : hidden;
+  animation   : cardIn .45s .14s var(--ease) both;
+}
+
+.table-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 22px; border-bottom:1px solid var(--border);
+  flex-wrap:wrap; gap:12px;
+}
+.table-title { font-size:14px; font-weight:700; color:var(--text-h); }
+.table-count {
+  font-size:11px; font-weight:700; padding:3px 10px;
+  border-radius:100px; background:var(--blue-glow);
+  border:1px solid var(--blue-line); color:var(--blue-light);
+}
+
+/* Scrollable table */
+.table-scroll { overflow-x:auto; }
+
+table {
+  width:100%; border-collapse:collapse; font-size:13px;
+}
+thead th {
+  padding:11px 16px; text-align:left;
+  font-size:10.5px; font-weight:700; letter-spacing:1px;
+  text-transform:uppercase; color:var(--text-dim);
+  background:rgba(255,255,255,0.02);
+  border-bottom:1px solid var(--border); white-space:nowrap;
+}
+tbody tr {
+  border-bottom:1px solid var(--border); transition:background .15s;
+  animation:rowIn .35s var(--ease) both;
+}
+{% for i in range(20) %}
+tbody tr:nth-child({{ i+1 }}) { animation-delay: {{ i * 0.03 }}s; }
+{% endfor %}
+tbody tr:last-child { border-bottom:none; }
+tbody tr:hover { background:rgba(59,130,246,0.04); }
+tbody td {
+  padding:12px 16px; color:var(--text-b);
+  max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+@keyframes rowIn {
+  from{opacity:0;transform:translateX(-8px)}
+  to  {opacity:1;transform:translateX(0)}
+}
+
+.td-name  { font-weight:600; color:var(--text-h); }
+.td-id    { color:var(--text-dim); font-family:monospace; font-size:12px; }
+
+/* Badges */
+.badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 10px; border-radius:100px;
+  font-size:11px; font-weight:700; white-space:nowrap;
+}
+.badge-blue   { background:rgba(59,130,246,0.12); color:var(--blue-light); }
+.badge-green  { background:rgba(34,197,94,0.12);  color:#4ade80; }
+.badge-red    { background:rgba(239,68,68,0.10);  color:#fca5a5; }
+.badge-gray   { background:rgba(255,255,255,0.06); color:var(--text-dim); }
+
+/* Star rating */
+.td-rating { color:#fbbf24; font-weight:600; }
+
+/* Action buttons */
+.action-cell { display:flex; align-items:center; gap:6px; }
+
+.btn-edit {
+  padding:5px 12px; border-radius:7px;
+  border:1px solid var(--blue-line); background:rgba(59,130,246,0.08);
+  color:var(--blue-light); font-size:11.5px; font-weight:600;
+  font-family:inherit; cursor:pointer; transition:all .2s;
+  white-space:nowrap;
+}
+.btn-edit:hover { background:rgba(59,130,246,0.18); }
+
+.btn-delete {
+  padding:5px 12px; border-radius:7px;
+  border:1px solid rgba(239,68,68,0.25); background:rgba(239,68,68,0.07);
+  color:#fca5a5; font-size:11.5px; font-weight:600;
+  font-family:inherit; cursor:pointer; transition:all .2s;
+  white-space:nowrap;
+}
+.btn-delete:hover { background:rgba(239,68,68,0.18); border-color:rgba(239,68,68,0.5); }
+
+/* Empty state */
+.empty-row td {
+  text-align:center; padding:48px; color:var(--text-dim); font-size:14px;
+}
+
+
+/* ── 8. SECTION LABEL ────────────────────────────────────── */
+.section-title {
+  font-family:'Syne',sans-serif; font-weight:700;
+  font-size:1rem; color:var(--text-h);
+  letter-spacing:-0.01em; margin-bottom:14px;
+  display:flex; align-items:center; gap:8px;
+}
+.section-title::before {
+  content:''; display:block;
+  width:3px; height:18px; border-radius:2px; background:var(--blue);
+}
+
+
+/* ── 9. RESPONSIVE ───────────────────────────────────────── */
+@media (max-width:768px) {
+  .sidebar { display:none; }
+  .main    { margin-left:0; padding:0 20px 48px; }
+  .top-header { padding:16px 0 18px; }
+}

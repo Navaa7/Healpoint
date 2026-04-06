@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ hospital.name }} — HealPoint</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Font -->
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@300,400,500,600,700,800&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Page stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/hospital_detail.css') }}" />
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div class="cursor"      id="cur"></div>
+  <div class="cursor-ring" id="curRing"></div>
+
+  <!-- Toasts -->
+  <div class="toast-stack" id="toastStack"></div>
+
+  <!-- Flask flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <script>
+        window.addEventListener('DOMContentLoaded', () => {
+          {% for cat, msg in messages %}
+            showToast('flash','{{ cat }}','{{ msg }}');
+          {% endfor %}
+        });
+      </script>
+    {% endif %}
+  {% endwith %}
+
+
+  <!-- ══════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════ -->
+  <nav class="hp-nav" id="hpNav">
+    <a class="hp-logo" href="{{ url_for('home') }}">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 4v16M4 12h16" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      HealPoint
+    </a>
+
+    <ul class="hp-nav-links">
+      <li><a href="{{ url_for('home') }}">Home</a></li>
+      <li><a href="{{ url_for('hospital_list') }}">Hospitals</a></li>
+      <li><a href="{{ url_for('emergency') }}">Emergency</a></li>
+
+    </ul>
+
+    <div class="hp-nav-right">
+      {% if session.get('role') == 'user' %}
+        <div class="user-chip">
+          <div class="user-avatar">{{ session.get('user_name','U')[0].upper() }}</div>
+          <span class="user-name">{{ session.get('user_name') }}</span>
+        </div>
+        <a href="{{ url_for('saved_hospitals') }}" class="btn-nav-ghost">Saved</a>
+        <a href="{{ url_for('logout') }}"          class="btn-nav-ghost">Logout</a>
+      {% elif session.get('role') == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}" class="btn-nav-ghost">Admin Panel</a>
+        <a href="{{ url_for('admin_logout') }}"    class="btn-nav-ghost">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}"  class="btn-nav-ghost">Login</a>
+        <a href="{{ url_for('signup') }}" class="btn-nav-cta">Sign Up →</a>
+      {% endif %}
+    </div>
+  </nav>
+
+
+  <!-- ══════════════════════════════════
+       BREADCRUMB / BACK BUTTON
+  ══════════════════════════════════ -->
+  <div class="breadcrumb-bar">
+    <a class="bc-back" href="{{ url_for('hospital_list') }}">← Back</a>
+    <span class="bc-sep">/</span>
+    <span class="bc-current">{{ hospital.name }}</span>
+  </div>
+
+
+  <!-- ══════════════════════════════════
+       TWO-PANEL: SIDEBAR LEFT | MAP RIGHT
+  ══════════════════════════════════ -->
+  <div class="detail-wrap">
+
+    <!-- ──────────────────────────────
+         LEFT SIDEBAR
+    ────────────────────────────── -->
+    <div class="detail-sidebar">
+
+      <!-- Hospital name + badges -->
+      <div class="hosp-header">
+        <div class="hosp-badges">
+          <span class="badge badge-type">{{ hospital.type }}</span>
+          {% if hospital.emergency == 'Yes' %}
+            <span class="badge badge-emg-yes">
+              <span class="emg-blink"></span> Emergency
+            </span>
+          {% else %}
+            <span class="badge badge-emg-no">No Emergency</span>
+          {% endif %}
+        </div>
+
+        <h1 class="hosp-name">{{ hospital.name }}</h1>
+
+        <div class="hosp-rating">
+          <div class="stars">
+            {% for i in range(1,6) %}
+              <span class="star {% if i <= hospital.rating|int %}on{% endif %}">★</span>
+            {% endfor %}
+          </div>
+          <span class="rating-val">{{ hospital.rating }}</span>
+          <span class="rating-max">/ 5</span>
+        </div>
+      </div>
+
+
+      <!-- Basic info card (visible to ALL users) -->
+      <div class="info-card" data-r="up" style="transition-delay:.05s">
+        <div class="info-card-title">Hospital Info</div>
+
+        <div class="info-row">
+          <span class="ir-icon">📍</span>
+          <span class="ir-key">Address</span>
+          <span class="ir-val">{{ hospital.address }}, {{ hospital.city }}</span>
+        </div>
+        <div class="info-row">
+          <span class="ir-icon">🗺️</span>
+          <span class="ir-key">Area</span>
+          <span class="ir-val">{{ hospital.area }}</span>
+        </div>
+        <div class="info-row">
+          <span class="ir-icon">🏥</span>
+          <span class="ir-key">Type</span>
+          <span class="ir-val">{{ hospital.type }}</span>
+        </div>
+        <div class="info-row">
+          <span class="ir-icon">🚨</span>
+          <span class="ir-key">Emergency</span>
+          <span class="ir-val">{{ hospital.emergency }}</span>
+        </div>
+      </div>
+
+
+      <!-- Specialties card -->
+      <div class="info-card" data-r="up" style="transition-delay:.10s">
+        <div class="info-card-title">Specialties</div>
+        <div class="spec-wrap">
+          {% for s in hospital.specialties.split(',') %}
+            <span class="spec-pill">{{ s.strip() }}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+
+      <!-- ── LOGGED-IN USER SECTION ── -->
+      {% if session.get('role') == 'user' %}
+
+      <!-- Contact card -->
+      <div class="info-card" data-r="up" style="transition-delay:.15s">
+        <div class="info-card-title">Contact</div>
+        <div class="info-row">
+          <span class="ir-icon">📞</span>
+          <span class="ir-key">Phone</span>
+          <span class="ir-val">{{ hospital.phone }}</span>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="action-block">
+
+        <!-- Call -->
+        <a href="tel:{{ hospital.phone }}">
+          <button class="btn-action btn-call-main">
+            <span class="btn-icon">📞</span>
+            <span class="btn-label">Call Hospital</span>
+            <span class="btn-arrow">↗</span>
+          </button>
+        </a>
+
+        <!-- Directions -->
+        <a href="https://www.google.com/maps/dir/?api=1&destination={{ hospital.latitude }},{{ hospital.longitude }}" target="_blank">
+          <button class="btn-action btn-directions">
+            <span class="btn-icon">🗺️</span>
+            <span class="btn-label">Get Directions</span>
+            <span class="btn-arrow">↗</span>
+          </button>
+        </a>
+
+        <!-- Save Hospital -->
+        <form action="{{ url_for('save_hospital', hospital_id=hospital.hospital_id) }}" method="POST">
+          <button type="submit" class="btn-action btn-save">
+            <span class="btn-icon">🔖</span>
+            <span class="btn-label">Save Hospital</span>
+            <span class="btn-arrow">+</span>
+          </button>
+        </form>
+
+        <!-- WhatsApp -->
+        <a href="https://wa.me/{{ session.get('user_phone') }}?text=🏥 Hospital: {{ hospital.name }}%0A📍 Address: {{ hospital.address }}, {{ hospital.city }}%0A📞 Phone: {{ hospital.phone }}%0A🚨 Emergency: {{ hospital.emergency }}%0A⭐ Rating: {{ hospital.rating }}%0A🗺️ Directions: https://www.google.com/maps/dir/?api=1%26destination={{ hospital.latitude }},{{ hospital.longitude }}" target="_blank">
+          <button class="btn-action btn-whatsapp">
+            <span class="btn-icon">💬</span>
+            <span class="btn-label">Share via WhatsApp</span>
+            <span class="btn-arrow">↗</span>
+          </button>
+        </a>
+
+      </div>
+
+
+      <!-- ── GUEST PROMPT ── -->
+      {% else %}
+      <div class="guest-card" data-r="up" style="transition-delay:.12s">
+        <div class="guest-ico">🔒</div>
+        <div class="guest-h">Login to access more</div>
+        <p class="guest-p">
+          Create a free account to unlock all hospital features.
+        </p>
+        <div class="guest-features">
+          <div class="guest-feat">📞 Hospital contact & direct call</div>
+          <div class="guest-feat">🗺️ Map location & directions</div>
+          <div class="guest-feat">🔖 Save hospital to favourites</div>
+          <div class="guest-feat">💬 WhatsApp notification</div>
+          <div class="guest-feat">⭐ Read & write reviews</div>
+        </div>
+        <a href="{{ url_for('login') }}">
+          <button class="btn-login-main">Login Now</button>
+        </a>
+        <a href="{{ url_for('signup') }}">
+          <button class="btn-signup-sec">Create Free Account</button>
+        </a>
+      </div>
+      {% endif %}
+
+    </div><!-- /detail-sidebar -->
+
+
+    <!-- ──────────────────────────────
+         RIGHT MAP PANEL
+    ────────────────────────────── -->
+    <div class="detail-map-panel" style="position:relative;">
+
+      <!-- The map -->
+      <div id="leaflet-map"></div>
+
+      {% if session.get('role') == 'user' %}
+      <!-- Floating action buttons over map -->
+      <div class="map-actions">
+        <a href="https://www.google.com/maps/dir/?api=1&destination={{ hospital.latitude }},{{ hospital.longitude }}" target="_blank">
+          <button class="map-action-btn map-btn-directions">🗺️ Directions</button>
+        </a>
+        <a href="tel:{{ hospital.phone }}">
+          <button class="map-action-btn map-btn-call">📞 Call</button>
+        </a>
+      </div>
+
+      {% else %}
+      <!-- Lock overlay for guests -->
+      <div class="map-lock-overlay">
+        <div class="mlo-ico">🗺️</div>
+        <div class="mlo-h">Map locked</div>
+        <p class="mlo-p">Login to view the hospital's exact location and get directions.</p>
+        <a href="{{ url_for('login') }}">
+          <button class="mlo-btn">Login to Unlock</button>
+        </a>
+      </div>
+      {% endif %}
+
+    </div><!-- /detail-map-panel -->
+
+  </div><!-- /detail-wrap -->
+
+
+  <!-- ══════════════════════════════════
+       REVIEWS SECTION (full width)
+  ══════════════════════════════════ -->
+  {% if session.get('role') == 'user' %}
+  <section class="reviews-section">
+
+    <!-- Header row -->
+    <div class="reviews-header" data-r="fade">
+      <h2 class="reviews-title">Patient Reviews</h2>
+      <div class="avg-score">
+        <div>
+          <div class="avg-num">{{ hospital.rating }}</div>
+          <div class="stars" style="margin-top:6px">
+            {% for i in range(1,6) %}
+              <span class="star {% if i <= hospital.rating|int %}on{% endif %}" style="font-size:14px">★</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div>
+          <div class="avg-sub">Overall Rating</div>
+          <div class="avg-sub">{{ reviews|length }} review{{ 's' if reviews|length != 1 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Existing review cards -->
+    <div class="reviews-grid">
+      {% if reviews %}
+        {% for rv in reviews %}
+        <div class="review-card" data-r="up" style="transition-delay:{{ loop.index0 * 0.07 }}s">
+          <div class="rc-top">
+            <div class="rc-user">
+              <div class="rc-avatar">{{ rv.user_name[0].upper() }}</div>
+              <div>
+                <div class="rc-name">{{ rv.user_name }}</div>
+                <div class="rc-date">{{ rv.created_at }}</div>
+              </div>
+            </div>
+            <div class="rc-stars">
+              {% for i in range(1,6) %}
+                <span class="rc-star {% if i <= rv.rating|int %}on{% endif %}">★</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Sub-scores -->
+          <div class="rc-scores">
+            <span class="rc-score-pill">🧹 Clean {{ rv.cleanliness }}/5</span>
+            <span class="rc-score-pill">⏱ Wait {{ rv.waiting_time }}/5</span>
+            <span class="rc-score-pill">👨‍⚕️ Service {{ rv.service_quality }}/5</span>
+          </div>
+
+          {% if rv.comment %}
+            <p class="rc-comment">{{ rv.comment }}</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="no-reviews">
+          No reviews yet — be the first to share your experience!
+        </div>
+      {% endif %}
+    </div>
+
+
+    <!-- Write review form -->
+    <div class="write-review" data-r="up">
+      <div class="wr-title">
+        {% if already_reviewed %}
+          Your Review
+        {% else %}
+          Write a Review
+        {% endif %}
+      </div>
+
+      {% if already_reviewed %}
+        <div class="already-reviewed">
+          ✅ You've already submitted a review for this hospital. Thank you!
+        </div>
+
+      {% else %}
+      <form action="{{ url_for('submit_review', hospital_id=hospital.hospital_id) }}" method="POST">
+
+        <!-- Overall Rating — interactive stars -->
+        <label class="form-label">Overall Rating *</label>
+        <div class="star-selector" id="starSelector">
+          {% for i in range(1,6) %}
+            <button type="button" class="star-btn" data-val="{{ i }}" onclick="setStars({{ i }})">★</button>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="rating" id="ratingInput" required />
+
+        <!-- Sub-score selects in a row -->
+        <div class="score-row">
+          <div>
+            <label class="form-label">Cleanliness *</label>
+            <select name="cleanliness" class="form-select" required>
+              <option value="">Select</option>
+              <option value="1">1 — Very Poor</option>
+              <option value="2">2 — Poor</option>
+              <option value="3">3 — Average</option>
+              <option value="4">4 — Good</option>
+              <option value="5">5 — Excellent</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Waiting Time *</label>
+            <select name="waiting_time" class="form-select" required>
+              <option value="">Select</option>
+              <option value="1">1 — Very Long</option>
+              <option value="2">2 — Long</option>
+              <option value="3">3 — Average</option>
+              <option value="4">4 — Short</option>
+              <option value="5">5 — Very Short</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Service Quality *</label>
+            <select name="service_quality" class="form-select" required>
+              <option value="">Select</option>
+              <option value="1">1 — Very Poor</option>
+              <option value="2">2 — Poor</option>
+              <option value="3">3 — Average</option>
+              <option value="4">4 — Good</option>
+              <option value="5">5 — Excellent</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Comment -->
+        <label class="form-label">Comment (optional)</label>
+        <textarea
+          name="comment"
+          class="form-textarea"
+          placeholder="Share your experience — waiting time, staff attitude, cleanliness…"
+        ></textarea>
+
+        <button type="submit" class="btn-submit">Submit Review →</button>
+      </form>
+      {% endif %}
+    </div>
+
+  </section>
+  {% endif %}
+
+
+  <!-- ══════════════════════════════════
+       FOOTER
+  ══════════════════════════════════ -->
+  <footer class="hp-footer">
+    <div class="footer-top">
+      <div>
+        <div class="f-logo">
+          <div class="logo-mark" style="width:26px;height:26px;border-radius:7px;">
+            <svg viewBox="0 0 24 24" fill="none" width="13" height="13">
+              <path d="M12 4v16M4 12h16" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          HealPoint
+        </div>
+        <p class="f-tag">Tamil Nadu's trusted hospital discovery platform.</p>
+        <div class="socials">
+          <a href="#" class="soc"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+          <a href="#" class="soc"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="#" class="soc"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" class="soc"><svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Explore</h5>
+        <ul>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="{{ url_for('hospital_list') }}">Hospitals</a></li>
+          <li><a href="{{ url_for('emergency') }}">Emergency</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Account</h5>
+        <ul>
+          <li><a href="{{ url_for('login') }}">Login</a></li>
+          <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+          <li><a href="#">Saved Hospitals</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="{{ url_for('admin_login') }}">Admin</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 HealPoint. All rights reserved.</span>
+      <span>Tamil Nadu Hospital Finder</span>
+      <div style="display:flex;gap:16px">
+        <a href="#">Privacy</a><a href="#">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Leaflet + Bootstrap JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  /* ── CURSOR ─────────────────────────────────────── */
+  const cur=document.getElementById('cur'), curRing=document.getElementById('curRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function loop(){
+    cur.style.left=mx+'px'; cur.style.top=my+'px';
+    rx+=(mx-rx)*.13; ry+=(my-ry)*.13;
+    curRing.style.left=rx+'px'; curRing.style.top=ry+'px';
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll('a,button,label').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cur.classList.add('big');curRing.classList.add('big');});
+    el.addEventListener('mouseleave',()=>{cur.classList.remove('big');curRing.classList.remove('big');});
+  });
+
+  /* ── NAVBAR ─────────────────────────────────────── */
+  const nav=document.getElementById('hpNav');
+  window.addEventListener('scroll',()=>{
+    nav.classList.toggle('lifted',window.scrollY>50);
+  },{passive:true});
+
+  /* ── SCROLL REVEAL ──────────────────────────────── */
+  const rObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){e.target.classList.add('in');rObs.unobserve(e.target);}
+    });
+  },{threshold:0.10});
+  document.querySelectorAll('[data-r]').forEach(el=>rObs.observe(el));
+
+  /* ── LEAFLET MAP ────────────────────────────────── */
+  {% if session.get('role') == 'user' %}
+  (function initMap(){
+    const lat = {{ hospital.latitude }};
+    const lng = {{ hospital.longitude }};
+
+    const map = L.map('leaflet-map', { zoomControl:false }).setView([lat, lng], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'© OpenStreetMap'
+    }).addTo(map);
+
+    // Zoom control bottom-left
+    L.control.zoom({ position:'bottomleft' }).addTo(map);
+
+    // Custom marker
+    const icon = L.divIcon({
+      className:'',
+      html:`<div style="
+        width:38px;height:38px;
+        border-radius:50% 50% 50% 0;
+        background:#b8e04a;
+        border:3px solid #111;
+        transform:rotate(-45deg);
+        box-shadow:0 4px 16px rgba(0,0,0,0.25);">
+      </div>`,
+      iconSize:[38,38], iconAnchor:[19,38], popupAnchor:[0,-42]
+    });
+
+    L.marker([lat, lng], {icon})
+      .addTo(map)
+      .bindPopup(`
+        <div style="font-family:'General Sans',sans-serif;min-width:180px;padding:4px">
+          <strong style="font-size:14px;color:#111">{{ hospital.name }}</strong><br>
+          <span style="font-size:12px;color:#777">{{ hospital.address }}, {{ hospital.city }}</span>
+        </div>
+      `)
+      .openPopup();
+  })();
+  {% endif %}
+
+  /* ── INTERACTIVE STAR RATING ────────────────────── */
+  function setStars(val){
+    document.getElementById('ratingInput').value = val;
+    document.querySelectorAll('.star-btn').forEach((btn,i)=>{
+      btn.classList.toggle('sel', i < val);
+    });
+  }
+  // Hover preview
+  document.querySelectorAll('.star-btn').forEach((btn,i,arr)=>{
+    btn.addEventListener('mouseenter',()=>{
+      arr.forEach((b,j)=> b.style.color = j<=i ? '#f59e0b' : '');
+    });
+    btn.addEventListener('mouseleave',()=>{
+      const cur = +document.getElementById('ratingInput').value||0;
+      arr.forEach((b,j)=> b.style.color = j<cur ? '#f59e0b' : '');
+    });
+  });
+
+  /* ── TOAST SYSTEM ───────────────────────────────── */
+  function showToast(type,cat,msg){
+    const stack=document.getElementById('toastStack');
+    const map2={
+      flash:{
+        ico:cat==='success'?'✅':cat==='error'?'❌':'ℹ️',
+        title:cat==='success'?'Success':cat==='error'?'Error':'Notice',
+        msg:msg||''
+      }
+    };
+    const c=map2[type]||map2.flash;
+    const el=document.createElement('div');
+    el.className='hp-toast';
+    el.innerHTML=`
+      <span class="t-ico">${c.ico}</span>
+      <div class="t-body">
+        <div class="t-title">${c.title}</div>
+        <div class="t-msg">${c.msg}</div>
+        <div class="t-bar"></div>
+      </div>`;
+    stack.appendChild(el);
+    setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),380);},5000);
+  }
+  </script>
+
+</body>
+</html>
