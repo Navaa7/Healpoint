@@ -1,10 +1,11 @@
+use railway;
+
+
 
 -- HOSPITAL FINDER - DATABASE SCHEMA
 -- Database: MySQL
 
 
-CREATE DATABASE hospital_finder;
-USE hospital_finder;
 
 
 -- TABLE 1: HOSPITALS
