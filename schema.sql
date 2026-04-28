@@ -59,6 +59,8 @@ CREATE TABLE admins (
 );
 
 
+
+
 -- TABLE 4: SAVED HOSPITALS
 -- Hospitals bookmarked by logged in users
 CREATE TABLE saved_hospitals (
@@ -92,11 +94,7 @@ CREATE TABLE reviews (
 -- DEFAULT ADMIN ACCOUNT
 -- ================================================
 INSERT INTO admins (name, email, password)
-VALUES ('Super Admin', 'admin@hospitalfinder.com', 'admin123');
-
-
-
-
+VALUES ('navaa', 'healpoint@gmail.com', '11012006');
 
 
 INSERT INTO hospitals (name, address, city, area, latitude, longitude, type, specialties, emergency, phone, rating)

@@ -4,13 +4,10 @@ import hashlib
 
 app = Flask(__name__)
 app.secret_key = "hospitalfinder_secret_key"
-
-# HELPER - PASSWORD HASH
-
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-# TEST DATABASE CONNECTION
+# sql connect ..
 @app.route('/test')
 def test_db():
     try:
@@ -20,9 +17,7 @@ def test_db():
             return "✅ Database Connected Successfully!"
     except Exception as e:
         return f"❌ Connection Failed: {str(e)}"
-
-# HOME PAGE
-
+    
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -787,4 +782,4 @@ def edit_hospital(hospital_id):
     return render_template('admin/edit_hospital.html', hospital=hospital)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
