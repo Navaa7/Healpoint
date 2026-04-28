@@ -1,0 +1,475 @@
+/* ================================================================
+   HEALPOINT — signup.css
+   Layout  : Full-page centered, multi-step progress form
+   Style   : Clean white card, step indicator, smooth transitions
+   Unique  : Step-by-step flow (different from all other pages)
+================================================================
+
+   QUICK EDIT TOKENS
+   ─────────────────
+   --accent       green-yellow highlight
+   --bg           page background
+   --text-h       headings
+   --text-b       body / label text
+================================================================ */
+
+
+/* ── 1. TOKENS ──────────────────────────────────────────── */
+:root {
+  --accent      : #b8e04a;
+  --accent-dark : #7aaa1a;
+  --accent-glow : rgba(184,224,74,0.15);
+  --accent-line : rgba(184,224,74,0.35);
+
+  --bg          : #f0f0ea;       /* page background — warm off-white */
+  --card        : #ffffff;
+
+  --text-h      : #111110;
+  --text-b      : #4a4a42;
+  --text-dim    : #a0a098;
+
+  --border      : rgba(0,0,0,0.08);
+  --border-s    : rgba(0,0,0,0.13);
+
+  --r           : 12px;
+  --r-pill      : 100px;
+  --ease        : cubic-bezier(0.16,1,0.3,1);
+  --ease-back   : cubic-bezier(0.34,1.56,0.64,1);
+}
+
+
+/* ── 2. RESET ────────────────────────────────────────────── */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html  { font-size:16px; }
+body  {
+  font-family  : 'Satoshi', 'DM Sans', sans-serif;
+  background   : var(--bg);
+  color        : var(--text-b);
+  min-height   : 100vh;
+  display      : flex;
+  flex-direction: column;
+  align-items  : center;
+  justify-content: center;
+  padding      : 40px 20px;
+}
+a { text-decoration:none; color:inherit; }
+
+
+/* ── 3. TOP NAVBAR BAR ──────────────────────────────────── */
+/* Simple minimal top bar — no floating pill here */
+.top-bar {
+  position     : fixed;
+  top          : 0; left: 0; right: 0;
+  z-index      : 100;
+  height       : 58px;
+  display      : flex;
+  align-items  : center;
+  justify-content: space-between;
+  padding      : 0 40px;
+  background   : rgba(240,240,234,0.85);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.top-logo {
+  display      : flex; align-items: center; gap: 8px;
+  font-family  : 'Syne', sans-serif;
+  font-weight  : 800; font-size: 17px;
+  color        : var(--text-h); letter-spacing: -0.3px;
+}
+.top-logo-mark {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+}
+.top-logo-mark svg { width: 14px; height: 14px; }
+
+.top-right {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--text-dim);
+}
+.top-right a {
+  font-weight: 600; color: var(--text-h);
+  padding: 7px 18px; border-radius: var(--r-pill);
+  border: 1.5px solid var(--border-s);
+  transition: all .2s;
+}
+.top-right a:hover { background: var(--text-h); color: #fff; border-color: var(--text-h); }
+
+
+/* ── 4. MAIN CARD ───────────────────────────────────────── */
+.signup-card {
+  background   : var(--card);
+  border-radius: 24px;
+  border       : 1px solid var(--border);
+  box-shadow   : 0 8px 48px rgba(0,0,0,0.07);
+  width        : 100%;
+  max-width    : 540px;
+  margin-top   : 30px;
+  overflow     : hidden;
+  animation    : cardAppear .6s var(--ease) both;
+}
+
+@keyframes cardAppear {
+  from { opacity:0; transform:translateY(24px) scale(0.98); }
+  to   { opacity:1; transform:translateY(0)    scale(1); }
+}
+
+/* Card header — progress lives here */
+.card-header {
+  padding      : 32px 40px 0;
+}
+
+/* Logo mark inside card */
+.card-logo {
+  display      : inline-flex; align-items: center; gap: 7px;
+  font-family  : 'Syne', sans-serif;
+  font-weight  : 800; font-size: 15px; color: var(--text-h);
+  margin-bottom: 24px;
+}
+.card-logo-mark {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+}
+.card-logo-mark svg { width: 12px; height: 12px; }
+
+
+/* ── 5. STEP PROGRESS INDICATOR ─────────────────────────── */
+.step-track {
+  display      : flex;
+  align-items  : center;
+  gap          : 0;
+  margin-bottom: 28px;
+}
+
+.step-item {
+  display      : flex; align-items: center; gap: 0;
+  flex         : 1;
+}
+
+.step-circle {
+  width        : 28px; height: 28px;
+  border-radius: 50%;
+  border       : 2px solid var(--border-s);
+  background   : var(--bg);
+  display      : flex; align-items: center; justify-content: center;
+  font-size    : 11px; font-weight: 700;
+  color        : var(--text-dim);
+  flex-shrink  : 0;
+  transition   : all .35s var(--ease);
+  position     : relative; z-index: 1;
+}
+
+/* Active step */
+.step-circle.active {
+  border-color : var(--accent);
+  background   : var(--accent);
+  color        : var(--text-h);
+  box-shadow   : 0 0 0 4px var(--accent-glow);
+  transform    : scale(1.12);
+}
+
+/* Completed step */
+.step-circle.done {
+  border-color : var(--accent-dark);
+  background   : var(--accent-dark);
+  color        : #fff;
+  transform    : scale(1);
+}
+
+/* Step label */
+.step-label {
+  font-size    : 10px; font-weight: 600;
+  letter-spacing: 0.5px; text-transform: uppercase;
+  color        : var(--text-dim);
+  margin-left  : 7px;
+  white-space  : nowrap;
+  transition   : color .3s;
+}
+.step-label.active { color: var(--text-h); }
+.step-label.done   { color: var(--accent-dark); }
+
+/* Connector line between steps */
+.step-line {
+  flex         : 1;
+  height       : 2px;
+  background   : var(--border);
+  margin       : 0 8px;
+  border-radius: 2px;
+  position     : relative; overflow: hidden;
+  transition   : background .4s;
+}
+.step-line.done { background: var(--accent-dark); }
+
+/* Animated fill */
+.step-line::after {
+  content      : '';
+  position     : absolute; top: 0; left: 0; bottom: 0;
+  width        : 0%; background: var(--accent-dark);
+  transition   : width .5s var(--ease);
+}
+.step-line.done::after { width: 100%; }
+
+
+/* ── 6. CARD BODY ───────────────────────────────────────── */
+.card-body { padding: 0 40px 32px; }
+
+/* Step heading */
+.step-heading {
+  font-family  : 'Syne', sans-serif;
+  font-weight  : 800;
+  font-size    : 1.35rem;
+  letter-spacing: -0.02em;
+  color        : var(--text-h);
+  margin-bottom: 4px;
+}
+
+.step-sub {
+  font-size    : 13.5px; color: var(--text-dim);
+  font-weight  : 300; margin-bottom: 24px; line-height: 1.5;
+}
+
+/* ── Each form step panel ── */
+.form-step {
+  display      : none;
+  animation    : stepIn .45s var(--ease) both;
+}
+.form-step.active { display: block; }
+
+@keyframes stepIn {
+  from { opacity:0; transform:translateX(18px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+
+@keyframes stepBack {
+  from { opacity:0; transform:translateX(-18px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+
+.form-step.back { animation: stepBack .45s var(--ease) both; }
+
+
+/* ── Field layout ── */
+/* Two fields side by side */
+.field-row {
+  display      : grid;
+  grid-template-columns: 1fr 1fr;
+  gap          : 12px;
+  margin-bottom: 14px;
+}
+
+/* Single full-width field */
+.field-group { margin-bottom: 14px; }
+
+.field-label {
+  display      : block;
+  font-size    : 12px; font-weight: 700;
+  letter-spacing: 0.6px; text-transform: uppercase;
+  color        : var(--text-b); margin-bottom: 7px;
+}
+
+.input-wrap  { position: relative; }
+
+.input-icon  {
+  position     : absolute; left: 13px; top: 50%;
+  transform    : translateY(-50%);
+  font-size    : 15px; pointer-events: none; opacity: 0.38;
+}
+
+/* Textarea icon — top aligned */
+.input-icon.top {
+  top: 14px; transform: none;
+}
+
+.form-input, .form-textarea {
+  width        : 100%;
+  padding      : 12px 14px 12px 40px;
+  border-radius: var(--r);
+  border       : 1.5px solid var(--border-s);
+  background   : #fafaf8;
+  color        : var(--text-h);
+  font-size    : 14px;
+  font-family  : 'Satoshi', 'DM Sans', sans-serif;
+  outline      : none;
+  transition   : border-color .2s, background .2s, box-shadow .2s;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder { color: var(--text-dim); font-size: 13.5px; }
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color : var(--accent);
+  background   : #fff;
+  box-shadow   : 0 0 0 3px var(--accent-glow);
+}
+
+.form-textarea {
+  resize       : none;
+  min-height   : 88px;
+  padding-top  : 12px;
+  line-height  : 1.6;
+}
+
+/* Password toggle */
+.pw-toggle {
+  position     : absolute; right: 12px; top: 50%;
+  transform    : translateY(-50%);
+  background   : none; border: none;
+  font-size    : 15px; cursor: pointer;
+  opacity      : 0.38; padding: 4px;
+  transition   : opacity .2s;
+}
+.pw-toggle:hover { opacity: .75; }
+
+/* Inline error hint under a field */
+.field-hint {
+  font-size    : 11.5px; color: var(--text-dim);
+  margin-top   : 5px; display: block;
+}
+.field-hint.err { color: #c53030; }
+
+
+/* ── 7. PASSWORD STRENGTH BAR ───────────────────────────── */
+.strength-wrap { margin-top: 8px; }
+.strength-bar  {
+  height       : 3px; border-radius: 2px;
+  background   : var(--border);
+  overflow     : hidden; margin-bottom: 4px;
+}
+.strength-fill {
+  height       : 100%; border-radius: 2px; width: 0%;
+  transition   : width .4s var(--ease), background .4s;
+}
+.strength-text {
+  font-size    : 11.5px; color: var(--text-dim);
+}
+
+
+/* ── 8. NAVIGATION BUTTONS ──────────────────────────────── */
+.step-btns {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  margin-top   : 24px;
+}
+
+/* Next / Submit */
+.btn-next {
+  flex         : 1;
+  padding      : 13px;
+  border-radius: var(--r);
+  border       : none;
+  background   : var(--text-h); color: #fff;
+  font-size    : 14.5px; font-weight: 700;
+  font-family  : 'Syne', sans-serif; letter-spacing: -0.01em;
+  cursor       : pointer;
+  transition   : background .2s, transform .15s;
+}
+.btn-next:hover  { background: #2a2a25; }
+.btn-next:active { transform: scale(0.99); }
+
+/* Green accent on final submit */
+.btn-next.final {
+  background: var(--accent-dark); color: #fff;
+}
+.btn-next.final:hover { background: #5c8812; }
+
+/* Back button */
+.btn-back {
+  padding      : 13px 20px;
+  border-radius: var(--r);
+  border       : 1.5px solid var(--border-s);
+  background   : transparent; color: var(--text-b);
+  font-size    : 14px; font-weight: 600;
+  font-family  : 'Satoshi', 'DM Sans', sans-serif;
+  cursor       : pointer; white-space: nowrap;
+  transition   : all .2s;
+}
+.btn-back:hover { border-color: var(--border-s); color: var(--text-h); background: var(--bg); }
+
+
+/* ── 9. CARD FOOTER ─────────────────────────────────────── */
+.card-footer {
+  padding      : 16px 40px 24px;
+  border-top   : 1px solid var(--border);
+  text-align   : center;
+  font-size    : 13px; color: var(--text-dim);
+}
+.card-footer a {
+  color        : var(--text-b); font-weight: 600;
+  transition   : color .2s;
+}
+.card-footer a:hover { color: var(--text-h); }
+
+
+/* ── 10. FLASH MESSAGES ─────────────────────────────────── */
+.flash-msg {
+  padding      : 11px 14px;
+  border-radius: var(--r);
+  font-size    : 13px; font-weight: 500;
+  margin-bottom: 18px;
+  display      : flex; align-items: center; gap: 8px;
+  animation    : fadeUp .4s var(--ease) both;
+}
+.flash-msg.error   { background:rgba(239,68,68,.07);  border:1px solid rgba(239,68,68,.2);  color:#b91c1c; }
+.flash-msg.success { background:rgba(184,224,74,.10); border:1px solid var(--accent-line);  color:#3a6010; }
+.flash-msg.info    { background:rgba(0,0,0,.04);      border:1px solid var(--border-s);     color:var(--text-b); }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+
+/* ── 11. SUCCESS STATE ──────────────────────────────────── */
+.success-screen {
+  display      : none;
+  text-align   : center;
+  padding      : 0 40px 40px;
+  animation    : fadeUp .5s .1s var(--ease) both;
+}
+.success-screen.active { display: block; }
+
+.success-icon {
+  width        : 64px; height: 64px;
+  background   : var(--accent);
+  border-radius: 50%; margin: 0 auto 20px;
+  display      : flex; align-items: center; justify-content: center;
+  font-size    : 28px;
+  animation    : popIn .5s var(--ease-back) both;
+}
+@keyframes popIn {
+  from { transform:scale(0); opacity:0; }
+  to   { transform:scale(1); opacity:1; }
+}
+
+.success-h { font-family:'Syne',sans-serif; font-weight:800; font-size:1.4rem; color:var(--text-h); margin-bottom:8px; }
+.success-p { font-size:14px; color:var(--text-dim); line-height:1.7; margin-bottom:24px; }
+.btn-goto  {
+  display:inline-block; padding:13px 36px;
+  border-radius:var(--r-pill); border:none;
+  background:var(--text-h); color:#fff;
+  font-size:14px; font-weight:700; font-family:'Syne',sans-serif;
+  cursor:pointer; transition:background .2s;
+}
+.btn-goto:hover { background:#2a2a25; }
+
+
+/* ── 12. PAGE FOOTER ─────────────────────────────────────── */
+.page-foot {
+  margin-top   : 20px;
+  font-size    : 12px; color: var(--text-dim);
+  text-align   : center;
+}
+
+
+/* ── 13. RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 580px) {
+  .card-header, .card-body, .card-footer { padding-left: 24px; padding-right: 24px; }
+  .success-screen { padding: 0 24px 32px; }
+  .field-row  { grid-template-columns: 1fr; }
+  .top-bar    { padding: 0 20px; }
+  .step-label { display: none; }      /* hide labels on small screens */
+}

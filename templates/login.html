@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — HealPoint</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/login.css') }}" />
+</head>
+<body>
+
+<div class="login-page">
+
+  <!-- ══════════════════════════════════
+       LEFT — Image panel
+       ★ Put your image at: static/images/login-cover.jpg
+  ══════════════════════════════════ -->
+  <div class="img-panel">
+
+    <!-- Your cover image -->
+    <img
+      src="{{ url_for('static', filename='nurse.jpg') }}"
+      alt="HealPoint"
+      onerror="this.closest('.img-panel').style.background='#0f1a0c'"
+    />
+
+    <!-- Logo over image -->
+    <div class="img-logo">
+      <div class="img-logo-mark">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 4v16M4 12h16" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="img-logo-name">HealPoint</span>
+    </div>
+
+    <!-- Caption at bottom -->
+    <div class="img-caption">
+      <h2>Find the right hospital,<br>when it matters most.</h2>
+      <p>Tamil Nadu's trusted hospital finder —<br>search, save, and navigate instantly.</p>
+      <div class="img-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ══════════════════════════════════
+       RIGHT — Login form
+  ══════════════════════════════════ -->
+  <div class="form-panel">
+
+    <!-- Back to home — top right like reference -->
+    <a class="back-link" href="{{ url_for('home') }}">← Home</a>
+
+    <div class="form-wrap">
+
+      <!-- Title -->
+      <h1 class="form-title">Welcome Back to HealPoint!</h1>
+      <p class="form-sub">
+        Sign in to your account
+      </p>
+
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div class="flash-msg {{ category }}">
+              {% if category == 'error' %}❌{% elif category == 'success' %}✅{% else %}ℹ️{% endif %}
+              {{ msg }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Login form — original logic untouched -->
+      <form action="{{ url_for('login') }}" method="POST">
+
+        <!-- Email -->
+        <div class="field-group">
+          <label class="field-label" for="email">Your Email</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉️</span>
+            <input
+              class="form-input"
+              type="email" id="email" name="email"
+              placeholder="info.madhu786@gmail.com"
+              required autocomplete="email"
+            />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="field-group">
+          <label class="field-label" for="password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input
+              class="form-input"
+              type="password" id="password" name="password"
+              placeholder="••••••••"
+              required autocomplete="current-password"
+            />
+            <button type="button" class="pw-toggle" id="pwToggle">👁️</button>
+          </div>
+        </div>
+
+        <!-- Remember me + Forgot password row -->
+        <div class="remember-row">
+          <label class="remember-check">
+            <input type="checkbox" name="remember" />
+            Remember me
+          </label>
+          <a class="forgot-link" href="#">Forgot Password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-login">Login</button>
+
+      </form>
+
+      <!-- Divider -->
+      <div class="or-divider">
+        <div class="or-line"></div>
+        <span class="or-text">or continue with</span>
+        <div class="or-line"></div>
+      </div>
+
+
+
+      <!-- Sign up link -->
+      <div class="form-footer">
+        Don't have an account? <a href="{{ url_for('signup') }}">Register</a>
+      </div>
+
+      <!-- Admin link -->
+      <div class="admin-row">
+        🔐 <a href="{{ url_for('admin_login') }}">Admin login</a>
+      </div>
+
+    </div><!-- /form-wrap -->
+  </div><!-- /form-panel -->
+
+</div><!-- /login-page -->
+
+
+<script>
+  /* Password show / hide */
+  const pwInput  = document.getElementById('password');
+  const pwToggle = document.getElementById('pwToggle');
+  pwToggle.addEventListener('click', () => {
+    const show = pwInput.type === 'password';
+    pwInput.type = show ? 'text' : 'password';
+    pwToggle.textContent = show ? '🙈' : '👁️';
+  });
+</script>
+
+</body>
+</html>

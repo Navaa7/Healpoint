@@ -1,0 +1,16 @@
+id,name,address,city,area,latitude,longitude,type,specialties,emergency,phone,rating
+104,Dr. Jayasekharan Hospital & Nursing Home,No. 47 Court Road,Nagercoil,Kottar,8.1784,77.4321,Multi-Specialty,"General, Cardiology, Emergency",Yes,04652-230019,4.5
+105,Bejan Singh Eye Hospital & Dental Wing,2/1 Court Road,Nagercoil,Kottar,8.1779,77.4315,Specialty,"Ophthalmology, Dental",No,04652-237491,4.3
+106,Sudarsan Dental Care,Main Road,Nagercoil,Vadasery,8.1872,77.4275,Dental,"Teeth, Orthodontics",No,04652-245678,4.2
+107,Smile Care Dental Clinic,Near Anna Bus Stand,Nagercoil,Vadasery,8.189,77.429,Dental,"Cosmetic Dentistry, Implants",No,04652-246789,4.1
+108,DermaPlus Skin Clinic,Beach Road,Nagercoil,Kottar,8.1765,77.434,Skin,"Dermatology, Cosmetology",No,04652-248901,4.4
+109,Siva Skin & Hair Care,Parvathipuram Road,Nagercoil,Parvathipuram,8.1702,77.4402,Skin,"Skin, Hair Treatment",No,04652-249876,4.0
+110,Government Medical College Hospital,Asaripallam Road,Nagercoil,Asaripallam,8.198,77.4065,Government,"General, Emergency, Surgery",Yes,04652-223201,4.3
+111,Aswini Hospital,Thalavai Street,Nagercoil,Kottar,8.1758,77.4328,Multi-Specialty,"General, Pediatrics",Yes,04652-232345,4.2
+112,Annai Dental Clinic,Near Tower Junction,Nagercoil,Kottar,8.1769,77.4312,Dental,"Root Canal, Braces",No,04652-241234,4.1
+113,SK Skin Care Clinic,Vepamoodu Junction,Nagercoil,Vepamoodu,8.1825,77.4355,Skin,"Dermatology, Allergy",No,04652-243567,4.0
+114,Joseph Dental Hospital,College Road,Nagercoil,Kottar,8.1745,77.4335,Dental,"Teeth Cleaning, Surgery",No,04652-247890,4.2
+115,Sri Ramakrishna Hospital,Collectorate Road,Nagercoil,Parvathipuram,8.1715,77.438,Multi-Specialty,"General Medicine, ENT",Yes,04652-239999,4.3
+116,Deepa Skin Clinic,Meenakshipuram,Nagercoil,Meenakshipuram,8.1808,77.4368,Skin,"Skin Care, Laser Treatment",No,04652-244321,4.1
+117,City Dental Care,Near Clock Tower,Nagercoil,Kottar,8.1772,77.4318,Dental,"Orthodontics, Whitening",No,04652-242222,4.0
+118,Shifa Hospital,Main Road,Nagercoil,Vadasery,8.1885,77.428,Multi-Specialty,"General, Emergency, Gynecology",Yes,04652-250111,4.4

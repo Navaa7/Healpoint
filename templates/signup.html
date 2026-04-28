@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up — HealPoint</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/signup.css') }}" />
+</head>
+<body>
+
+  <!-- ── Top bar ── -->
+  <div class="top-bar">
+    <a class="top-logo" href="{{ url_for('home') }}">
+      <div class="top-logo-mark">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 4v16M4 12h16" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      HealPoint
+    </a>
+    <div class="top-right">
+      Already have an account?
+      <a href="{{ url_for('login') }}">Login →</a>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════
+       SIGNUP CARD
+  ════════════════════════════════ -->
+  <div class="signup-card">
+
+    <!-- Card header — step progress -->
+    <div class="card-header">
+
+      <div class="card-logo">
+        <div class="card-logo-mark">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 4v16M4 12h16" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        HealPoint
+      </div>
+
+      <!-- Step indicator: 3 steps -->
+      <div class="step-track" id="stepTrack">
+
+        <div class="step-item">
+          <div class="step-circle active" id="sc1">1</div>
+          <span class="step-label active" id="sl1">Account</span>
+        </div>
+
+        <div class="step-line" id="sline1"></div>
+
+        <div class="step-item">
+          <div class="step-circle" id="sc2">2</div>
+          <span class="step-label" id="sl2">Security</span>
+        </div>
+
+        <div class="step-line" id="sline2"></div>
+
+        <div class="step-item">
+          <div class="step-circle" id="sc3">3</div>
+          <span class="step-label" id="sl3">Location</span>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- Card body — one form, three steps shown via JS -->
+    <div class="card-body">
+
+      <!-- Flask flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div class="flash-msg {{ category }}">
+              {% if category == 'error' %}❌{% elif category == 'success' %}✅{% else %}ℹ️{% endif %}
+              {{ msg }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+
+      <!-- THE ACTUAL FORM — action and method kept exactly as original -->
+      <form action="{{ url_for('signup') }}" method="POST" id="signupForm" novalidate>
+
+        <!-- ══ STEP 1 — Personal info ══ -->
+        <div class="form-step active" id="step1">
+          <h2 class="step-heading">Create your account</h2>
+          <p class="step-sub">Tell us a little about yourself to get started.</p>
+
+          <!-- Full Name -->
+          <div class="field-group">
+            <label class="field-label" for="name">Full Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input
+                class="form-input" type="text"
+                id="name" name="name"
+                placeholder="Enter your full name"
+                required autocomplete="name"
+              />
+            </div>
+          </div>
+
+          <!-- Email + Phone side by side -->
+          <div class="field-row">
+            <div>
+              <label class="field-label" for="email">Email Address</label>
+              <div class="input-wrap">
+                <span class="input-icon">✉️</span>
+                <input
+                  class="form-input" type="email"
+                  id="email" name="email"
+                  placeholder="you@example.com"
+                  required autocomplete="email"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="field-label" for="phone">Phone Number</label>
+              <div class="input-wrap">
+                <span class="input-icon">📞</span>
+                <input
+                  class="form-input" type="tel"
+                  id="phone" name="phone"
+                  placeholder="10-digit number"
+                  maxlength="10" required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="step-btns">
+            <button type="button" class="btn-next" onclick="goStep(2)">
+              Continue →
+            </button>
+          </div>
+        </div>
+
+
+        <!-- ══ STEP 2 — Password ══ -->
+        <div class="form-step" id="step2">
+          <h2 class="step-heading">Secure your account</h2>
+          <p class="step-sub">Choose a strong password — at least 8 characters.</p>
+
+          <!-- Password -->
+          <div class="field-group">
+            <label class="field-label" for="password">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input
+                class="form-input" type="password"
+                id="password" name="password"
+                placeholder="Minimum 8 characters"
+                minlength="8" required
+                oninput="updateStrength(this.value)"
+              />
+              <button type="button" class="pw-toggle" onclick="togglePw('password', this)">👁️</button>
+            </div>
+            <!-- Strength bar -->
+            <div class="strength-wrap">
+              <div class="strength-bar">
+                <div class="strength-fill" id="strengthFill"></div>
+              </div>
+              <span class="strength-text" id="strengthText">Enter a password</span>
+            </div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="field-group">
+            <label class="field-label" for="confirm_password">Confirm Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input
+                class="form-input" type="password"
+                id="confirm_password" name="confirm_password"
+                placeholder="Re-enter your password"
+                required
+              />
+              <button type="button" class="pw-toggle" onclick="togglePw('confirm_password', this)">👁️</button>
+            </div>
+            <span class="field-hint" id="matchHint"></span>
+          </div>
+
+          <div class="step-btns">
+            <button type="button" class="btn-back" onclick="goStep(1)">← Back</button>
+            <button type="button" class="btn-next" onclick="goStep(3)">Continue →</button>
+          </div>
+        </div>
+
+
+        <!-- ══ STEP 3 — Location ══ -->
+        <div class="form-step" id="step3">
+          <h2 class="step-heading">Your location</h2>
+          <p class="step-sub">We use this to show hospitals near you.</p>
+
+          <!-- City + Pincode -->
+          <div class="field-row">
+            <div>
+              <label class="field-label" for="city">City</label>
+              <div class="input-wrap">
+                <span class="input-icon">🏙️</span>
+                <input
+                  class="form-input" type="text"
+                  id="city" name="city"
+                  placeholder="Your city" required
+                />
+              </div>
+            </div>
+            <div>
+              <label class="field-label" for="pincode">Pincode</label>
+              <div class="input-wrap">
+                <span class="input-icon">📮</span>
+                <input
+                  class="form-input" type="text"
+                  id="pincode" name="pincode"
+                  placeholder="6-digit pincode"
+                  maxlength="6" required
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Area -->
+          <div class="field-group">
+            <label class="field-label" for="area">Area / Locality</label>
+            <div class="input-wrap">
+              <span class="input-icon">📍</span>
+              <input
+                class="form-input" type="text"
+                id="area" name="area"
+                placeholder="Your area or locality" required
+              />
+            </div>
+          </div>
+
+          <!-- Address -->
+          <div class="field-group">
+            <label class="field-label" for="address">Full Address</label>
+            <div class="input-wrap">
+              <span class="input-icon top">🏠</span>
+              <textarea
+                class="form-textarea" id="address" name="address"
+                placeholder="Enter your full address" required
+                style="padding-left:40px;"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="step-btns">
+            <button type="button" class="btn-back" onclick="goStep(2)">← Back</button>
+            <button type="submit" class="btn-next final">Create Account ✓</button>
+          </div>
+        </div>
+
+      </form><!-- /signupForm -->
+
+
+      <!-- Success screen (shown after submit via JS if needed) -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon">✓</div>
+        <div class="success-h">Account Created!</div>
+        <p class="success-p">
+          Welcome to HealPoint. Your account is ready.<br>
+          You can now find hospitals across Tamil Nadu.
+        </p>
+        <a href="{{ url_for('login') }}" class="btn-goto">Go to Login →</a>
+      </div>
+
+    </div><!-- /card-body -->
+
+
+    <!-- Card footer -->
+    <div class="card-footer">
+      Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+    </div>
+
+  </div><!-- /signup-card -->
+
+
+  <!-- Page footer -->
+  <div class="page-foot">© 2025 HealPoint. All Rights Reserved.</div>
+
+
+  <script>
+  /* ═══════════════════════════════════════════
+     STEP NAVIGATION
+  ═══════════════════════════════════════════ */
+  let currentStep = 1;
+  const TOTAL = 3;
+
+  function goStep(target) {
+    // Validate before moving forward
+    if (target > currentStep) {
+      if (!validateStep(currentStep)) return;
+    }
+
+    // Update panels
+    document.querySelectorAll('.form-step').forEach(s => {
+      s.classList.remove('active','back');
+    });
+    const nextPanel = document.getElementById('step' + target);
+    nextPanel.classList.add('active');
+    if (target < currentStep) nextPanel.classList.add('back');
+
+    // Update step indicators
+    for (let i = 1; i <= TOTAL; i++) {
+      const circle = document.getElementById('sc' + i);
+      const label  = document.getElementById('sl' + i);
+      circle.classList.remove('active','done');
+      label.classList.remove('active','done');
+
+      if (i < target)       { circle.classList.add('done'); label.classList.add('done'); circle.textContent = '✓'; }
+      else if (i === target) { circle.classList.add('active'); label.classList.add('active'); circle.textContent = i; }
+      else                   { circle.textContent = i; }
+    }
+
+    // Update connector lines
+    for (let i = 1; i < TOTAL; i++) {
+      const line = document.getElementById('sline' + i);
+      line.classList.toggle('done', i < target);
+    }
+
+    currentStep = target;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ═══════════════════════════════════════════
+     STEP VALIDATION
+  ═══════════════════════════════════════════ */
+  function validateStep(step) {
+    if (step === 1) {
+      const name  = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      if (!name)                         { shake('name');  return false; }
+      if (!email || !email.includes('@')){ shake('email'); return false; }
+      if (!phone || phone.length !== 10) { shake('phone'); return false; }
+      return true;
+    }
+    if (step === 2) {
+      const pw  = document.getElementById('password').value;
+      const cpw = document.getElementById('confirm_password').value;
+      if (pw.length < 8)  { shake('password'); return false; }
+      if (pw !== cpw)     {
+        document.getElementById('matchHint').textContent = 'Passwords do not match.';
+        document.getElementById('matchHint').className = 'field-hint err';
+        shake('confirm_password'); return false;
+      }
+      return true;
+    }
+    return true;
+  }
+
+  /* Shake animation for invalid field */
+  function shake(id) {
+    const el = document.getElementById(id);
+    el.style.animation = 'none';
+    el.offsetHeight;
+    el.style.animation = 'shakeField .4s var(--ease)';
+    el.focus();
+  }
+
+  /* ═══════════════════════════════════════════
+     PASSWORD STRENGTH
+  ═══════════════════════════════════════════ */
+  function updateStrength(val) {
+    const fill = document.getElementById('strengthFill');
+    const text = document.getElementById('strengthText');
+    let score  = 0;
+    if (val.length >= 8)  score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const levels = [
+      { w:'0%',   bg:'transparent', t:'' },
+      { w:'25%',  bg:'#ef4444',     t:'Weak' },
+      { w:'50%',  bg:'#f97316',     t:'Fair' },
+      { w:'75%',  bg:'#eab308',     t:'Good' },
+      { w:'100%', bg:'#b8e04a',     t:'Strong ✓' }
+    ];
+    const l = levels[score] || levels[0];
+    fill.style.width      = l.w;
+    fill.style.background = l.bg;
+    text.textContent      = l.t;
+
+    // Live match hint
+    const cpw = document.getElementById('confirm_password').value;
+    if (cpw) checkMatch();
+  }
+
+  function checkMatch() {
+    const pw  = document.getElementById('password').value;
+    const cpw = document.getElementById('confirm_password').value;
+    const hint = document.getElementById('matchHint');
+    if (!cpw) { hint.textContent = ''; return; }
+    if (pw === cpw) {
+      hint.textContent = '✓ Passwords match';
+      hint.className   = 'field-hint';
+      hint.style.color = '#7aaa1a';
+    } else {
+      hint.textContent = 'Passwords do not match';
+      hint.className   = 'field-hint err';
+    }
+  }
+
+  document.getElementById('confirm_password').addEventListener('input', checkMatch);
+
+  /* ═══════════════════════════════════════════
+     PASSWORD SHOW / HIDE
+  ═══════════════════════════════════════════ */
+  function togglePw(id, btn) {
+    const input = document.getElementById(id);
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    btn.textContent = show ? '🙈' : '👁️';
+  }
+
+  /* ═══════════════════════════════════════════
+     FORM SUBMIT — password match check (original logic)
+  ═══════════════════════════════════════════ */
+  document.getElementById('signupForm').addEventListener('submit', function(e) {
+    const pw  = document.getElementById('password').value;
+    const cpw = document.getElementById('confirm_password').value;
+    if (pw !== cpw) {
+      e.preventDefault();
+      document.getElementById('matchHint').textContent = 'Passwords do not match!';
+      document.getElementById('matchHint').className   = 'field-hint err';
+      goStep(2);
+    }
+  });
+
+  /* ═══════════════════════════════════════════
+     SHAKE KEYFRAME (injected)
+  ═══════════════════════════════════════════ */
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes shakeField {
+      0%,100% { transform:translateX(0); }
+      20%     { transform:translateX(-6px); }
+      40%     { transform:translateX(6px); }
+      60%     { transform:translateX(-4px); }
+      80%     { transform:translateX(4px); }
+    }
+  `;
+  document.head.appendChild(style);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Hospital — HealPoint Admin</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/add_hospital.css') }}" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2L3 7v6c0 5.25 3.75 10.15 9 11.25C17.25 23.15 21 18.25 21 13V7L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
+      </div>
+      <div>
+        <div class="sb-logo-text">HealPoint</div>
+        <div class="sb-logo-sub">ADMIN PANEL</div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <span class="sb-section-label">Main</span>
+      <a class="sb-link" href="{{ url_for('admin_dashboard') }}">
+        <span class="sb-icon">📊</span> Dashboard
+      </a>
+      <a class="sb-link" href="{{ url_for('manage_hospitals') }}">
+        <span class="sb-icon">🏥</span> Manage Hospitals
+      </a>
+      <a class="sb-link active" href="{{ url_for('add_hospital') }}">
+        <span class="sb-icon">➕</span> Add Hospital
+      </a>
+      <span class="sb-section-label">Data</span>
+      <a class="sb-link" href="#">
+        <span class="sb-icon">👥</span> Users
+      </a>
+      <a class="sb-link" href="#">
+        <span class="sb-icon">⭐</span> Reviews
+      </a>
+      <span class="sb-section-label">System</span>
+      <a class="sb-link" href="{{ url_for('admin_logout') }}">
+        <span class="sb-icon">🚪</span> Logout
+      </a>
+    </nav>
+
+    <div class="sb-admin">
+      <div class="sb-admin-av">A</div>
+      <div>
+        <div class="sb-admin-name">{{ session.get('admin_name','Admin') }}</div>
+        <div class="sb-admin-role">Super Admin</div>
+      </div>
+    </div>
+  </aside>
+
+
+  <!-- ══════════════════════════════════
+       MAIN
+  ══════════════════════════════════ -->
+  <main class="main">
+
+    <!-- Top header -->
+    <div class="top-header">
+      <div>
+        <div class="page-title">Add New Hospital</div>
+        <div class="page-sub">Fill in the details below to register a new hospital.</div>
+      </div>
+      <div class="header-btns">
+        <a href="{{ url_for('manage_hospitals') }}" class="btn-outline">← Manage Hospitals</a>
+        <a href="{{ url_for('admin_dashboard') }}"  class="btn-outline">Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash-msg {{ category }}">
+            {% if category == 'error' %}🚫{% else %}✅{% endif %}
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+
+    <!-- ══ FORM — original action & method kept exactly ══ -->
+    <form action="{{ url_for('add_hospital') }}" method="POST">
+
+      <div class="form-card">
+
+        <!-- Coloured top accent bar -->
+        <div class="form-card-bar"></div>
+
+
+        <!-- ── SECTION 1: Basic Info ── -->
+        <div class="form-section">
+          <div class="fs-title">01 — Basic Information</div>
+
+          <div class="field-grid">
+
+            <!-- Hospital Name — full width -->
+            <div class="field-group field-full">
+              <label class="field-label" for="name">Hospital Name *</label>
+              <input
+                class="form-input" type="text"
+                id="name" name="name"
+                placeholder="e.g. Apollo Hospitals Chennai"
+                required
+              />
+            </div>
+
+            <!-- City -->
+            <div class="field-group">
+              <label class="field-label" for="city">City *</label>
+              <input
+                class="form-input" type="text"
+                id="city" name="city"
+                placeholder="e.g. Chennai"
+                required
+              />
+            </div>
+
+            <!-- Area -->
+            <div class="field-group">
+              <label class="field-label" for="area">Area / Locality *</label>
+              <input
+                class="form-input" type="text"
+                id="area" name="area"
+                placeholder="e.g. Greams Road"
+                required
+              />
+            </div>
+
+            <!-- Address — full width -->
+            <div class="field-group field-full">
+              <label class="field-label" for="address">Full Address *</label>
+              <textarea
+                class="form-textarea"
+                id="address" name="address"
+                placeholder="Enter the complete hospital address"
+                required
+              ></textarea>
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- ── SECTION 2: Location Coordinates ── -->
+        <div class="form-section">
+          <div class="fs-title">02 — Map Coordinates</div>
+
+          <div class="field-grid">
+
+            <div class="field-group">
+              <label class="field-label" for="latitude">Latitude *</label>
+              <input
+                class="form-input" type="text"
+                id="latitude" name="latitude"
+                placeholder="e.g. 13.0600"
+                required
+              />
+              <span class="field-hint">Decimal format — find via Google Maps</span>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="longitude">Longitude *</label>
+              <input
+                class="form-input" type="text"
+                id="longitude" name="longitude"
+                placeholder="e.g. 80.2480"
+                required
+              />
+              <span class="field-hint">Decimal format — find via Google Maps</span>
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- ── SECTION 3: Hospital Details ── -->
+        <div class="form-section">
+          <div class="fs-title">03 — Hospital Details</div>
+
+          <div class="field-grid">
+
+            <!-- Type -->
+            <div class="field-group">
+              <label class="field-label" for="type">Hospital Type *</label>
+              <select class="form-select" id="type" name="type" required>
+                <option value="">Select Type</option>
+                <option value="General">General</option>
+                <option value="Specialty">Specialty</option>
+              </select>
+            </div>
+
+            <!-- Emergency -->
+            <div class="field-group">
+              <label class="field-label" for="emergency">Emergency Available *</label>
+              <select class="form-select" id="emergency" name="emergency" required>
+                <option value="">Select</option>
+                <option value="Yes">Yes — Emergency Available</option>
+                <option value="No">No — Not Available</option>
+              </select>
+            </div>
+
+            <!-- Specialties — full width -->
+            <div class="field-group field-full">
+              <label class="field-label" for="specialties">Specialties *</label>
+              <input
+                class="form-input" type="text"
+                id="specialties" name="specialties"
+                placeholder="e.g. Cardiology|Neurology|Orthopedics"
+                required
+              />
+              <span class="field-hint">Separate multiple specialties with the | symbol</span>
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- ── SECTION 4: Contact & Rating ── -->
+        <div class="form-section">
+          <div class="fs-title">04 — Contact & Rating</div>
+
+          <div class="field-grid">
+
+            <!-- Phone -->
+            <div class="field-group">
+              <label class="field-label" for="phone">Phone Number *</label>
+              <input
+                class="form-input" type="text"
+                id="phone" name="phone"
+                placeholder="e.g. 044-28293333"
+                required
+              />
+            </div>
+
+            <!-- Rating -->
+            <div class="field-group">
+              <label class="field-label" for="rating">Rating (0.0 – 5.0) *</label>
+              <div class="rating-wrap">
+                <input
+                  class="form-input" type="number"
+                  id="rating" name="rating"
+                  placeholder="e.g. 4.5"
+                  step="0.1" min="0" max="5"
+                  required
+                  oninput="updateStars(this.value)"
+                />
+                <span class="rating-preview" id="starPreview">— / 5</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- ── FORM ACTIONS ── -->
+        <div class="form-actions">
+          <a href="{{ url_for('manage_hospitals') }}">
+            <button type="button" class="btn-cancel">Cancel</button>
+          </a>
+          <button type="submit" class="btn-submit">
+            ➕ Add Hospital
+          </button>
+        </div>
+
+      </div><!-- /form-card -->
+
+    </form>
+
+  </main>
+
+
+  <script>
+  /* Live star preview for rating field */
+  function updateStars(val) {
+    const preview = document.getElementById('starPreview');
+    const num = parseFloat(val);
+    if (isNaN(num) || val === '') { preview.textContent = '— / 5'; return; }
+    const clamped = Math.min(5, Math.max(0, num));
+    const full    = Math.floor(clamped);
+    const half    = clamped % 1 >= 0.5 ? 1 : 0;
+    const empty   = 5 - full - half;
+    preview.textContent =
+      '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty) + ` ${clamped.toFixed(1)}`;
+  }
+  </script>
+
+</body>
+</html>

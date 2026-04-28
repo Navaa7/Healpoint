@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Hospitals — HealPoint Admin</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/manage_hospitals.css') }}" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2L3 7v6c0 5.25 3.75 10.15 9 11.25C17.25 23.15 21 18.25 21 13V7L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
+      </div>
+      <div>
+        <div class="sb-logo-text">HealPoint</div>
+        <div class="sb-logo-sub">ADMIN PANEL</div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <span class="sb-section-label">Main</span>
+      <a class="sb-link" href="{{ url_for('admin_dashboard') }}">
+        <span class="sb-icon">📊</span> Dashboard
+      </a>
+      <a class="sb-link active" href="{{ url_for('manage_hospitals') }}">
+        <span class="sb-icon">🏥</span> Manage Hospitals
+      </a>
+      <a class="sb-link" href="{{ url_for('add_hospital') }}">
+        <span class="sb-icon">➕</span> Add Hospital
+      </a>
+      <span class="sb-section-label">Data</span>
+      <a class="sb-link" href="#">
+        <span class="sb-icon">👥</span> Users
+      </a>
+      <a class="sb-link" href="#">
+        <span class="sb-icon">⭐</span> Reviews
+      </a>
+      <span class="sb-section-label">System</span>
+      <a class="sb-link" href="{{ url_for('admin_logout') }}">
+        <span class="sb-icon">🚪</span> Logout
+      </a>
+    </nav>
+
+    <div class="sb-admin">
+      <div class="sb-admin-av">A</div>
+      <div>
+        <div class="sb-admin-name">{{ session.get('admin_name','Admin') }}</div>
+        <div class="sb-admin-role">Super Admin</div>
+      </div>
+    </div>
+  </aside>
+
+
+  <!-- ══════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════ -->
+  <main class="main">
+
+    <!-- Top header -->
+    <div class="top-header">
+      <div>
+        <div class="page-title">Manage Hospitals</div>
+        <div class="page-sub">Upload, search, edit and delete hospital records.</div>
+      </div>
+      <div class="header-btns">
+        <a href="{{ url_for('add_hospital') }}" class="btn-primary">+ Add Hospital</a>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn-outline">← Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash-msg {{ category }}">
+            {% if category == 'error' %}🚫{% else %}✅{% endif %}
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+
+    <!-- ── CSV UPLOAD ── -->
+    <div class="section-title">CSV Upload</div>
+
+    <div class="upload-card">
+      <div class="upload-card-title">📂 Upload Hospitals via CSV</div>
+      <div class="upload-card-sub">
+        CSV columns must be in this exact order:
+      </div>
+      <div class="csv-columns">
+        name, address, city, area, latitude, longitude, type, specialties, emergency, phone, rating
+      </div>
+
+      <!-- Original upload form logic kept exactly -->
+      <form action="{{ url_for('upload_csv') }}" method="POST" enctype="multipart/form-data">
+        <div class="file-input-wrap">
+          <label class="file-input-label">
+            📁 Choose CSV File
+            <input
+              type="file" id="csv_file" name="csv_file"
+              accept=".csv" required
+              onchange="document.getElementById('fname').textContent = this.files[0]?.name || 'No file chosen'"
+            />
+          </label>
+          <span class="file-name" id="fname">No file chosen</span>
+          <button class="btn-upload" type="submit">
+            📤 Upload CSV
+          </button>
+        </div>
+      </form>
+    </div>
+
+
+    <!-- ── SEARCH & FILTER ── -->
+    <div class="section-title">Search & Filter</div>
+
+    <!-- Original search form logic kept exactly -->
+    <form action="{{ url_for('manage_hospitals') }}" method="GET">
+      <div class="filter-bar">
+
+        <div class="search-wrap">
+          <input
+            type="text" name="q"
+            placeholder="Search by name or city…"
+            value="{{ request.args.get('q', '') }}"
+            autocomplete="off"
+          />
+          <button class="search-btn" type="submit">Search</button>
+        </div>
+
+        <select class="filter-select" name="type" onchange="this.form.submit()">
+          <option value="">All Types</option>
+          <option value="General"
+            {% if request.args.get('type') == 'General' %}selected{% endif %}>General</option>
+          <option value="Specialty"
+            {% if request.args.get('type') == 'Specialty' %}selected{% endif %}>Specialty</option>
+        </select>
+
+        <select class="filter-select" name="emergency" onchange="this.form.submit()">
+          <option value="">All</option>
+          <option value="Yes" {% if request.args.get('emergency') == 'Yes' %}selected{% endif %}>Emergency Only</option>
+          <option value="No"  {% if request.args.get('emergency') == 'No'  %}selected{% endif %}>Non-Emergency</option>
+        </select>
+
+        <a href="{{ url_for('manage_hospitals') }}" class="clear-link">Clear</a>
+
+      </div>
+    </form>
+
+
+    <!-- ── HOSPITALS TABLE ── -->
+    <div class="section-title">All Hospitals</div>
+
+    <div class="table-card">
+      <div class="table-head">
+        <span class="table-title">Hospital Records</span>
+        <span class="table-count">{{ hospitals|length }} hospitals</span>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>City</th>
+              <th>Area</th>
+              <th>Type</th>
+              <th>Specialties</th>
+              <th>Emergency</th>
+              <th>Phone</th>
+              <th>Rating</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if hospitals %}
+              {% for hospital in hospitals %}
+              <tr>
+                <td class="td-id">#{{ hospital.hospital_id }}</td>
+
+                <td class="td-name">{{ hospital.name }}</td>
+
+                <td><span class="badge badge-blue">{{ hospital.city }}</span></td>
+
+                <td>{{ hospital.area }}</td>
+
+                <td>
+                  <span class="badge {% if hospital.type == 'General' %}badge-gray{% else %}badge-blue{% endif %}">
+                    {{ hospital.type }}
+                  </span>
+                </td>
+
+                <td title="{{ hospital.specialties }}">
+                  {{ hospital.specialties[:30] }}{% if hospital.specialties|length > 30 %}…{% endif %}
+                </td>
+
+                <td>
+                  {% if hospital.emergency == 'Yes' %}
+                    <span class="badge badge-green">✓ Yes</span>
+                  {% else %}
+                    <span class="badge badge-red">✗ No</span>
+                  {% endif %}
+                </td>
+
+                <td>{{ hospital.phone }}</td>
+
+                <td class="td-rating">⭐ {{ hospital.rating }}</td>
+
+                <td>
+                  <div class="action-cell">
+                    <!-- Edit — original logic kept -->
+                    <a href="{{ url_for('edit_hospital', hospital_id=hospital.hospital_id) }}">
+                      <button class="btn-edit">✏️ Edit</button>
+                    </a>
+
+                    <!-- Delete — original logic kept -->
+                    <form action="/admin/hospital/delete/{{ hospital.hospital_id }}" method="POST" style="display:inline;">
+                      <button
+                        class="btn-delete" type="submit"
+                        onclick="return confirm('Delete {{ hospital.name }}? This cannot be undone.')">
+                        🗑️ Delete
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+
+            {% else %}
+              <tr class="empty-row">
+                <td colspan="10">
+                  No hospitals found. <a href="{{ url_for('add_hospital') }}" style="color:var(--blue-light);">Add one now →</a>
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+</body>
+</html>

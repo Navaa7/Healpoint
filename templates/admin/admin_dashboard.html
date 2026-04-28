@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — HealPoint</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap" rel="stylesheet" />
+
+  <!-- Dashboard stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/admin_dashboard.css') }}" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="sb-logo">
+      <div class="sb-logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2L3 7v6c0 5.25 3.75 10.15 9 11.25C17.25 23.15 21 18.25 21 13V7L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
+      </div>
+      <div>
+        <div class="sb-logo-text">HealPoint</div>
+        <div class="sb-logo-sub">ADMIN PANEL</div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sb-nav">
+
+      <span class="sb-section-label">Main</span>
+
+      <a class="sb-link active" href="{{ url_for('admin_dashboard') }}">
+        <span class="sb-icon">📊</span> Dashboard
+      </a>
+
+      <a class="sb-link" href="{{ url_for('manage_hospitals') }}">
+        <span class="sb-icon">🏥</span> Manage Hospitals
+      </a>
+
+      <a class="sb-link" href="{{ url_for('add_hospital') }}">
+        <span class="sb-icon">➕</span> Add Hospital
+      </a>
+
+      <span class="sb-section-label">Data</span>
+
+      <a class="sb-link" href="#">
+        <span class="sb-icon">👥</span> Users
+      </a>
+
+      <a class="sb-link" href="#">
+        <span class="sb-icon">⭐</span> Reviews
+      </a>
+
+      <span class="sb-section-label">System</span>
+
+      <a class="sb-link" href="{{ url_for('admin_logout') }}">
+        <span class="sb-icon">🚪</span> Logout
+      </a>
+
+    </nav>
+
+    <!-- Admin info chip -->
+    <div class="sb-admin">
+      <div class="sb-admin-av">A</div>
+      <div>
+        <div class="sb-admin-name">{{ session.get('admin_name', 'Admin') }}</div>
+        <div class="sb-admin-role">Super Admin</div>
+      </div>
+    </div>
+
+  </aside>
+
+
+  <!-- ══════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════ -->
+  <main class="main">
+
+    <!-- Top header -->
+    <div class="top-header">
+      <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Welcome back, {{ session.get('admin_name', 'Admin') }} — here's what's happening.</div>
+      </div>
+      <div class="header-right">
+        <a href="{{ url_for('add_hospital') }}" style="padding:9px 20px;border-radius:100px;background:var(--blue);color:#fff;font-size:13px;font-weight:700;font-family:inherit;border:none;cursor:pointer;">
+          + Add Hospital
+        </a>
+        <form action="{{ url_for('admin_logout') }}" method="GET" style="display:inline">
+          <button class="btn-logout" type="submit">Logout</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash-msg {{ category }}">
+            {% if category == 'error' %}🚫{% else %}✅{% endif %}
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+
+    <!-- ── STAT CARDS ── -->
+    <div class="stats-row">
+
+      <div class="stat-card">
+        <div class="stat-icon ic-blue">🏥</div>
+        <div class="stat-num" id="countHospitals">0</div>
+        <div class="stat-label">Total Hospitals</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon ic-green">👥</div>
+        <div class="stat-num" id="countUsers">0</div>
+        <div class="stat-label">Registered Users</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon ic-amber">⭐</div>
+        <div class="stat-num" id="countReviews">0</div>
+        <div class="stat-label">Total Reviews</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon ic-purple">🔖</div>
+        <div class="stat-num" id="countSaved">0</div>
+        <div class="stat-label">Total Saves</div>
+      </div>
+
+    </div>
+
+
+    <!-- ── CHARTS ── -->
+    <div class="section-gap">
+      <div class="section-title">Insights</div>
+
+      <div class="charts-grid">
+
+        <!-- Users per city -->
+        <div class="chart-card">
+          <div class="chart-label">Users per City</div>
+          <div class="chart-wrap">
+            <canvas id="userCityChart" height="220"></canvas>
+          </div>
+        </div>
+
+        <!-- Most saved -->
+        <div class="chart-card">
+          <div class="chart-label">Most Saved Hospitals</div>
+          <div class="chart-wrap">
+            <canvas id="savedHospitalChart" height="220"></canvas>
+          </div>
+        </div>
+
+        <!-- Most reviewed — full width -->
+        <div class="chart-card full">
+          <div class="chart-label">Most Reviewed Hospitals</div>
+          <div class="chart-wrap">
+            <canvas id="reviewedHospitalChart" height="180"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ── USERS TABLE ── -->
+    <div class="section-gap">
+      <div class="section-title">Registered Users</div>
+
+      <div class="table-card">
+        <div class="table-head">
+          <span class="table-title">All Users</span>
+          <span class="table-count">{{ users|length }} total</span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Area</th>
+                <th>Pincode</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if users %}
+                {% for user in users %}
+                <tr>
+                  <td>{{ user.user_id }}</td>
+                  <td class="td-name">{{ user.name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.phone }}</td>
+                  <td><span class="td-badge blue">{{ user.city }}</span></td>
+                  <td>{{ user.area }}</td>
+                  <td>{{ user.pincode }}</td>
+                  <td>{{ user.created_at }}</td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr class="empty-row">
+                  <td colspan="8">No users registered yet.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ── MOST SAVED TABLE ── -->
+    <div class="section-gap">
+      <div class="section-title">Hospital Activity</div>
+
+      <div class="table-card">
+        <div class="table-head">
+          <span class="table-title">Most Saved Hospitals</span>
+          <span class="table-count">{{ most_saved|length }} hospitals</span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Hospital Name</th>
+                <th>City</th>
+                <th>Total Saves</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if most_saved %}
+                {% for h in most_saved %}
+                <tr>
+                  <td class="td-name">{{ h.name }}</td>
+                  <td><span class="td-badge blue">{{ h.city }}</span></td>
+                  <td><span class="td-badge amber">{{ h.total_saves }} saves</span></td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr class="empty-row"><td colspan="3">No saves recorded yet.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- Most Reviewed -->
+      <div class="table-card">
+        <div class="table-head">
+          <span class="table-title">Most Reviewed Hospitals</span>
+          <span class="table-count">{{ most_reviewed|length }} hospitals</span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Hospital Name</th>
+                <th>City</th>
+                <th>Total Reviews</th>
+                <th>Avg Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if most_reviewed %}
+                {% for h in most_reviewed %}
+                <tr>
+                  <td class="td-name">{{ h.name }}</td>
+                  <td><span class="td-badge blue">{{ h.city }}</span></td>
+                  <td><span class="td-badge green">{{ h.total_reviews }}</span></td>
+                  <td>
+                    <span class="td-badge amber">⭐ {{ h.avg_rating }}</span>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr class="empty-row"><td colspan="4">No reviews recorded yet.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main><!-- /main -->
+
+
+  <!-- ══════════════════════════════════
+       CHART.JS SCRIPTS — original logic preserved
+  ══════════════════════════════════ -->
+  <script>
+  /* ── Shared chart defaults (dark theme) ── */
+  Chart.defaults.color          = '#475569';
+  Chart.defaults.borderColor    = 'rgba(255,255,255,0.05)';
+  Chart.defaults.font.family    = "'Satoshi','DM Sans',sans-serif";
+  Chart.defaults.font.size      = 12;
+
+  const blueGradient = (ctx, area) => {
+    const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    g.addColorStop(0,   'rgba(59,130,246,0.6)');
+    g.addColorStop(1,   'rgba(59,130,246,0.05)');
+    return g;
+  };
+
+  /* ── Count-up animation for stat cards ── */
+  function countUp(id, target) {
+    const el  = document.getElementById(id);
+    let   cur = 0;
+    const dur = 1200;
+    const start = performance.now();
+    const tick = now => {
+      const p = Math.min((now - start) / dur, 1);
+      el.textContent = Math.floor(p * target);
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = target;
+    };
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    countUp('countHospitals', {{ stats.total_hospitals }});
+    countUp('countUsers',     {{ stats.total_users }});
+    countUp('countReviews',   {{ stats.total_reviews }});
+    countUp('countSaved',     {{ stats.total_saved }});
+  });
+
+  /* ── Users Per City Chart ── */
+  const userCityCtx = document.getElementById('userCityChart');
+  new Chart(userCityCtx, {
+    type: 'bar',
+    data: {
+      labels  : {{ user_city_labels | tojson }},
+      datasets: [{
+        label          : 'Users',
+        data           : {{ user_city_data | tojson }},
+        backgroundColor: function(ctx) {
+          const chart = ctx.chart;
+          const {chartArea} = chart;
+          if (!chartArea) return 'rgba(59,130,246,0.5)';
+          return blueGradient(chart.ctx, chartArea);
+        },
+        borderColor    : 'rgba(59,130,246,0.8)',
+        borderWidth    : 1.5,
+        borderRadius   : 6,
+        borderSkipped  : false,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation : { duration:900, easing:'easeOutQuart' },
+      plugins   : { legend:{ display:false } },
+      scales    : {
+        x: { grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#3d5068' } },
+        y: { beginAtZero:true, grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#3d5068' } }
+      }
+    }
+  });
+
+  /* ── Most Saved Hospitals Chart ── */
+  const savedCtx = document.getElementById('savedHospitalChart');
+  new Chart(savedCtx, {
+    type: 'bar',
+    data: {
+      labels  : {{ saved_hospital_labels | tojson }},
+      datasets: [{
+        label          : 'Saves',
+        data           : {{ saved_hospital_data | tojson }},
+        backgroundColor: 'rgba(245,158,11,0.25)',
+        borderColor    : 'rgba(245,158,11,0.8)',
+        borderWidth    : 1.5,
+        borderRadius   : 6,
+        borderSkipped  : false,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation : { duration:900, delay:(ctx) => ctx.dataIndex * 80 },
+      plugins   : { legend:{ display:false } },
+      scales    : {
+        x: { grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#3d5068', maxRotation:30 } },
+        y: { beginAtZero:true, grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#3d5068' } }
+      }
+    }
+  });
+
+  /* ── Most Reviewed Hospitals Chart ── */
+  const reviewedCtx = document.getElementById('reviewedHospitalChart');
+  new Chart(reviewedCtx, {
+    type: 'bar',
+    data: {
+      labels  : {{ reviewed_hospital_labels | tojson }},
+      datasets: [{
+        label          : 'Reviews',
+        data           : {{ reviewed_hospital_data | tojson }},
+        backgroundColor: 'rgba(168,85,247,0.25)',
+        borderColor    : 'rgba(168,85,247,0.8)',
+        borderWidth    : 1.5,
+        borderRadius   : 6,
+        borderSkipped  : false,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation : { duration:1000, delay:(ctx) => ctx.dataIndex * 60 },
+      plugins   : { legend:{ display:false } },
+      scales    : {
+        x: { grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#3d5068', maxRotation:30 } },
+        y: { beginAtZero:true, grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#3d5068' } }
+      }
+    }
+  });
+  </script>
+
+</body>
+</html>
