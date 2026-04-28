@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Hospitals — HealPoint</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Font -->
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@300,400,500,600,700,800&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet (map) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- This page's stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/hospital_list.css') }}" />
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div class="cursor"      id="cur"></div>
+  <div class="cursor-ring" id="curRing"></div>
+
+  <!-- Toasts -->
+  <div class="toast-stack" id="toastStack"></div>
+
+  <!-- Flask flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <script>
+        window.addEventListener('DOMContentLoaded', () => {
+          {% for cat, msg in messages %}
+            showToast('flash', '{{ cat }}', '{{ msg }}');
+          {% endfor %}
+        });
+      </script>
+    {% endif %}
+  {% endwith %}
+
+
+  <!-- ══════════════════════════════════════
+       NAVBAR (same floating pill as home)
+  ══════════════════════════════════════ -->
+  <nav class="hp-nav" id="hpNav">
+    <a class="hp-logo" href="{{ url_for('home') }}">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 4v16M4 12h16" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      HealPoint
+    </a>
+
+    <ul class="hp-nav-links">
+      <li><a href="{{ url_for('home') }}">Home</a></li>
+      <li><a href="{{ url_for('hospital_list') }}" class="active">Hospitals</a></li>
+      <li><a href="{{ url_for('emergency') }}">Emergency</a></li>
+    </ul>
+
+    <div class="hp-nav-right">
+      {% if session.get('role') == 'user' %}
+        <div class="user-chip">
+          <div class="user-avatar">{{ session.get('user_name','U')[0].upper() }}</div>
+          <span class="user-name">{{ session.get('user_name') }}</span>
+        </div>
+        <a href="{{ url_for('saved_hospitals') }}" class="btn-nav-ghost">Saved</a>
+        <a href="{{ url_for('logout') }}"          class="btn-nav-ghost">Logout</a>
+      {% elif session.get('role') == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}" class="btn-nav-ghost">Admin Panel</a>
+        <a href="{{ url_for('admin_logout') }}"    class="btn-nav-ghost">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}"  class="btn-nav-ghost">Login</a>
+        <a href="{{ url_for('signup') }}" class="btn-nav-cta">Sign Up →</a>
+      {% endif %}
+    </div>
+  </nav>
+
+
+  <!-- ══════════════════════════════════════
+       PAGE HEADER
+  ══════════════════════════════════════ -->
+  <header class="page-header">
+    <div class="header-inner">
+
+      <div class="header-left" data-r="fade">
+        <span class="header-eyebrow">🏥 Hospital Directory</span>
+        <h1 class="page-h1">
+          {% if search_query %}
+            Results for "{{ search_query }}"
+          {% else %}
+            Find Hospitals<br>Across Tamil Nadu
+          {% endif %}
+        </h1>
+        <p class="page-sub">
+          Verified hospitals sorted by relevance, emergency availability, and proximity to you.
+        </p>
+      </div>
+
+      <div class="result-badge" data-r="fade">
+        <div class="count-pill">
+          <strong>{{ (top_hospitals|length) + (nearby_hospitals|length) }}</strong>
+          hospitals found
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+
+  <!-- ══════════════════════════════════════
+       STICKY FILTER BAR
+  ══════════════════════════════════════ -->
+  <div class="filter-bar">
+    <form class="filter-inner" action="{{ url_for('hospital_list') }}" method="GET" id="filterForm">
+
+      <!-- Search input -->
+      <div class="search-wrap">
+        <input
+          type="text" name="q"
+          placeholder="Search hospital or city…"
+          value="{{ request.args.get('q', '') }}"
+          autocomplete="off"
+        />
+        <button class="search-btn" type="submit">Search</button>
+      </div>
+
+      <!-- Type filter -->
+      <select class="filter-select" name="type" onchange="this.form.submit()">
+        <option value="">All Types</option>
+        <option value="General"
+          {% if request.args.get('type') == 'General' %}selected{% endif %}>
+          General
+        </option>
+        <option value="Specialty"
+          {% if request.args.get('type') == 'Specialty' %}selected{% endif %}>
+          Specialty
+        </option>
+      </select>
+
+      <!-- Emergency toggle -->
+      <label
+        class="emg-toggle {% if request.args.get('emergency') == 'Yes' %}on{% endif %}"
+        id="emgToggle"
+      >
+        <input
+          type="checkbox" name="emergency" value="Yes"
+          {% if request.args.get('emergency') == 'Yes' %}checked{% endif %}
+          onchange="this.form.submit()"
+        />
+        <span class="emg-dot-sm"></span>
+        Emergency Only
+      </label>
+
+      <!-- Clear filters -->
+      <a href="{{ url_for('hospital_list') }}" class="clear-link">Clear all</a>
+
+    </form>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       SPECIALTY PILLS (logged-in users only)
+  ══════════════════════════════════════ -->
+  {% if session.get('role') == 'user' %}
+  <div class="specialty-pills">
+    <a
+      href="{{ url_for('hospital_list') }}{% if request.args.get('q') %}?q={{ request.args.get('q') }}{% endif %}"
+      class="sp-pill {% if not request.args.get('specialty') %}active{% endif %}"
+    >
+      🏥 All
+    </a>
+    {% for specialty in specialties %}
+    <a
+      href="{{ url_for('hospital_list') }}?specialty={{ specialty.name }}{% if request.args.get('q') %}&q={{ request.args.get('q') }}{% endif %}"
+      class="sp-pill {% if request.args.get('specialty') == specialty.name %}active{% endif %}"
+    >
+      {{ specialty.icon }} {{ specialty.simple_name }}
+    </a>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <!-- Login prompt for guests -->
+  <div class="login-prompt-bar">
+    <span>🔒</span>
+    <span>
+      <a href="{{ url_for('login') }}">Login</a> to access specialty filters,
+      map view, direct contact, and personalised hospital suggestions.
+    </span>
+  </div>
+  {% endif %}
+
+
+  <!-- ══════════════════════════════════════
+       MAIN LIST / MAP AREA
+  ══════════════════════════════════════ -->
+  <div class="list-page">
+
+    <!-- View toggle + result count -->
+    <div class="view-toggle">
+      <div class="results-info">
+        {% if search_query %}
+          Showing results for <strong>"{{ search_query }}"</strong> —
+        {% endif %}
+        <strong>{{ (top_hospitals|length) + (nearby_hospitals|length) }}</strong> hospitals
+      </div>
+
+      {% if session.get('role') == 'user' %}
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="btnList" onclick="switchView('list')">
+          📋 List
+        </button>
+        <button class="toggle-btn" id="btnMap" onclick="switchView('map')">
+          🗺️ Map
+        </button>
+      </div>
+      {% endif %}
+    </div>
+
+
+    <!-- ─────────── LIST VIEW ─────────── -->
+    <div id="list-view">
+
+      <!-- TOP HOSPITALS -->
+      {% if top_hospitals %}
+      <div class="section-label" data-r="fade">
+        <div class="sl-line"></div>
+        <span class="sl-text">
+          {% if request.args.get('specialty') %}
+            Top for {{ request.args.get('specialty') }}
+          {% else %}
+            Top Hospitals
+          {% endif %}
+        </span>
+      </div>
+
+      <div class="hospital-grid" data-r="up">
+        {% for h in top_hospitals %}
+        <div class="h-card">
+
+          <!-- Name + emergency badge -->
+          <div class="card-top">
+            <div class="h-name">{{ h.name }}</div>
+            {% if h.emergency == 'Yes' %}
+              <span class="badge-emg yes">
+                <span class="emg-blink"></span> Emergency
+              </span>
+            {% else %}
+              <span class="badge-emg no">No Emergency</span>
+            {% endif %}
+          </div>
+
+          <!-- Meta -->
+          <div class="card-meta">
+            <div class="meta-row">
+              <span class="mi">📍</span>
+              <span>{{ h.address }}, {{ h.city }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="mi">🏥</span>
+              <span>{{ h.type }} Hospital</span>
+            </div>
+          </div>
+
+          <!-- Specialty tags -->
+          <div class="spec-tags">
+            {% for s in h.specialties.split(',')[:4] %}
+              <span class="spec-tag">{{ s.strip() }}</span>
+            {% endfor %}
+          </div>
+
+          <!-- Star rating -->
+          <div class="card-rating">
+            <div class="stars">
+              {% for i in range(1, 6) %}
+                <span class="star {% if i <= h.rating|int %}on{% endif %}">★</span>
+              {% endfor %}
+            </div>
+            <span class="rating-num">{{ h.rating }}</span>
+            <span class="rating-count">/ 5</span>
+          </div>
+
+          <div class="card-divider"></div>
+
+          <!-- Actions -->
+          <div class="card-actions">
+            <a href="{{ url_for('hospital_detail', hospital_id=h.hospital_id) }}">
+              <button class="btn-details">View Details →</button>
+            </a>
+
+            {% if session.get('role') == 'user' %}
+              <a href="tel:{{ h.phone }}">
+                <button class="btn-call">📞 Call</button>
+              </a>
+            {% else %}
+              <a href="{{ url_for('login') }}">
+                <button class="btn-locked">🔒 Login to Call</button>
+              </a>
+            {% endif %}
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+
+      <!-- NEARBY HOSPITALS (logged-in only) -->
+      {% if session.get('role') == 'user' and nearby_hospitals %}
+      <div class="section-label" data-r="fade">
+        <div class="sl-line"></div>
+        <span class="sl-text">Near You — {{ session.get('user_city') }}</span>
+      </div>
+
+      <div class="hospital-grid nearby" data-r="up">
+        {% for h in nearby_hospitals %}
+        <div class="h-card">
+
+          <div class="card-top">
+            <div class="h-name">{{ h.name }}</div>
+            {% if h.emergency == 'Yes' %}
+              <span class="badge-emg yes">
+                <span class="emg-blink"></span> Emergency
+              </span>
+            {% else %}
+              <span class="badge-emg no">No Emergency</span>
+            {% endif %}
+          </div>
+
+          <div class="card-meta">
+            <div class="meta-row">
+              <span class="mi">📍</span>
+              <span>{{ h.address }}, {{ h.city }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="mi">🏥</span>
+              <span>{{ h.type }} Hospital</span>
+            </div>
+          </div>
+
+          <div class="spec-tags">
+            {% for s in h.specialties.split(',')[:4] %}
+              <span class="spec-tag">{{ s.strip() }}</span>
+            {% endfor %}
+          </div>
+
+          <div class="card-rating">
+            <div class="stars">
+              {% for i in range(1, 6) %}
+                <span class="star {% if i <= h.rating|int %}on{% endif %}">★</span>
+              {% endfor %}
+            </div>
+            <span class="rating-num">{{ h.rating }}</span>
+            <span class="rating-count">/ 5</span>
+          </div>
+
+          <div class="card-divider"></div>
+
+          <div class="card-actions">
+            <a href="{{ url_for('hospital_detail', hospital_id=h.hospital_id) }}">
+              <button class="btn-details">View Details →</button>
+            </a>
+            <a href="tel:{{ h.phone }}">
+              <button class="btn-call">📞 Call</button>
+            </a>
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+
+      <!-- EMPTY STATE -->
+      {% if not top_hospitals and not nearby_hospitals %}
+      <div class="empty-state" data-r="scale">
+        <div class="empty-ico">🏥</div>
+        <div class="empty-h">No hospitals found</div>
+        <p class="empty-p">
+          Try searching with a different city, area, or specialty name.<br>
+          You can also clear all filters to see all hospitals.
+        </p>
+        <a href="{{ url_for('hospital_list') }}" class="empty-btn">Clear Search</a>
+      </div>
+      {% endif %}
+
+    </div><!-- /list-view -->
+
+
+    <!-- ─────────── MAP VIEW (logged-in only) ─────────── -->
+    {% if session.get('role') == 'user' %}
+    <div id="map-view">
+      <div class="map-container">
+        <div id="leaflet-map"></div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div><!-- /list-page -->
+
+
+  <!-- ══════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════ -->
+  <footer class="hp-footer">
+    <div class="footer-top">
+      <div>
+        <div class="f-logo">
+          <div class="logo-mark" style="width:26px;height:26px;border-radius:7px;">
+            <svg viewBox="0 0 24 24" fill="none" width="13" height="13">
+              <path d="M12 4v16M4 12h16" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          HealPoint
+        </div>
+        <p class="f-tag">Tamil Nadu's trusted hospital discovery platform.</p>
+        <div class="socials">
+          <a href="#" class="soc"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+          <a href="#" class="soc"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="#" class="soc"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" class="soc"><svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Explore</h5>
+        <ul>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="{{ url_for('hospital_list') }}">Hospitals</a></li>
+          <li><a href="{{ url_for('emergency') }}">Emergency</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Account</h5>
+        <ul>
+          <li><a href="{{ url_for('login') }}">Login</a></li>
+          <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+          <li><a href="#">Saved Hospitals</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="{{ url_for('admin_login') }}">Admin</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 HealPoint. All rights reserved.</span>
+      <span>Tamil Nadu Hospital Finder</span>
+      <div style="display:flex;gap:16px">
+        <a href="#">Privacy</a><a href="#">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  /* ── CURSOR ────────────────────────────────── */
+  const cur=document.getElementById('cur'), curRing=document.getElementById('curRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function loop(){
+    cur.style.left=mx+'px'; cur.style.top=my+'px';
+    rx+=(mx-rx)*.13; ry+=(my-ry)*.13;
+    curRing.style.left=rx+'px'; curRing.style.top=ry+'px';
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll('a,button,label').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cur.classList.add('big');curRing.classList.add('big');});
+    el.addEventListener('mouseleave',()=>{cur.classList.remove('big');curRing.classList.remove('big');});
+  });
+
+  /* ── NAVBAR scroll ─────────────────────────── */
+  const nav=document.getElementById('hpNav');
+  window.addEventListener('scroll',()=>{
+    nav.classList.toggle('lifted',window.scrollY>50);
+  },{passive:true});
+
+  /* ── SCROLL REVEAL ─────────────────────────── */
+  const rObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){e.target.classList.add('in');rObs.unobserve(e.target);}
+    });
+  },{threshold:0.10});
+  document.querySelectorAll('[data-r]').forEach(el=>rObs.observe(el));
+
+  /* ── LIST / MAP TOGGLE ─────────────────────── */
+  function switchView(v){
+    const lv = document.getElementById('list-view');
+    const mv = document.getElementById('map-view');
+    const bl = document.getElementById('btnList');
+    const bm = document.getElementById('btnMap');
+    if(!lv||!mv) return;
+    if(v==='list'){
+      lv.style.display='block'; mv.classList.remove('active');
+      bl.classList.add('active'); bm.classList.remove('active');
+    } else {
+      lv.style.display='none'; mv.classList.add('active');
+      bm.classList.add('active'); bl.classList.remove('active');
+      initMap();   // lazy-init map on first open
+    }
+  }
+
+  /* ── LEAFLET MAP (lazy init) ───────────────── */
+  let mapInited = false;
+
+  function initMap(){
+    if(mapInited) return;
+    mapInited = true;
+
+    const map = L.map('leaflet-map').setView([11.1271, 78.6569], 7);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Custom green marker icon
+    const greenIcon = L.divIcon({
+      className:'',
+      html:`<div style="
+        width:32px;height:32px;border-radius:50% 50% 50% 0;
+        background:#b8e04a;border:3px solid #111;
+        transform:rotate(-45deg);
+        box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+      </div>`,
+      iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-36]
+    });
+
+    const hospitals = {{ all_hospitals | tojson }};
+
+    hospitals.forEach(function(h){
+      if(h.latitude && h.longitude){
+        L.marker([h.latitude, h.longitude], {icon: greenIcon})
+          .addTo(map)
+          .bindPopup(`
+            <div style="font-family:'General Sans',sans-serif;min-width:200px;padding:4px">
+              <strong style="font-size:14px;color:#111">${h.name}</strong><br>
+              <span style="font-size:12px;color:#777">${h.address}, ${h.city}</span><br><br>
+              <span style="font-size:12px">🚨 Emergency: <b>${h.emergency}</b></span><br>
+              <span style="font-size:12px">⭐ Rating: <b>${h.rating}</b></span><br><br>
+              <a href="/hospital/${h.hospital_id}"
+                style="display:inline-block;padding:7px 16px;border-radius:100px;
+                background:#b8e04a;color:#111;font-size:12px;font-weight:700;text-decoration:none;">
+                View Details →
+              </a>
+            </div>
+          `);
+      }
+    });
+
+    // User location marker
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(function(pos){
+        const uLat=pos.coords.latitude, uLng=pos.coords.longitude;
+        L.marker([uLat,uLng],{
+          icon:L.divIcon({
+            className:'',
+            html:`<div style="
+              width:14px;height:14px;border-radius:50%;
+              background:#111;border:3px solid #b8e04a;
+              box-shadow:0 0 0 6px rgba(184,224,74,.25);">
+            </div>`,
+            iconSize:[14,14], iconAnchor:[7,7]
+          })
+        }).addTo(map).bindPopup('📍 You are here').openPopup();
+        map.setView([uLat,uLng],11);
+      });
+    }
+  }
+
+  /* ── TOAST ─────────────────────────────────── */
+  function showToast(type,cat,msg){
+    const stack=document.getElementById('toastStack');
+    const map2={
+      flash:{
+        ico:cat==='success'?'✅':cat==='error'?'❌':'ℹ️',
+        title:cat==='success'?'Success':cat==='error'?'Error':'Notice',
+        msg:msg||''
+      }
+    };
+    const c=map2[type]||map2.flash;
+    const el=document.createElement('div');
+    el.className='hp-toast';
+    el.innerHTML=`
+      <span class="t-ico">${c.ico}</span>
+      <div class="t-body">
+        <div class="t-title">${c.title}</div>
+        <div class="t-msg">${c.msg}</div>
+        <div class="t-bar"></div>
+      </div>`;
+    stack.appendChild(el);
+    setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),380);},5000);
+  }
+  </script>
+
+</body>
+</html>

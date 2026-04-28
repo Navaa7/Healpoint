@@ -1,0 +1,51 @@
+hospital_id,name,address,city,area,latitude,longitude,type,specialties,emergency,phone,rating
+1,Apollo Hospital,21 Greams Lane,Chennai,Greams Road,13.0600,80.2800,Specialty,Cardiology|Neurology|Oncology,Yes,044-28293333,4.7
+2,Fortis Malar Hospital,52 1st Main Road,Chennai,Adyar,13.0012,80.2565,Specialty,Cardiology|Orthopedics|Neurology,Yes,044-42890000,4.6
+3,MIOT International,4/112 Mount Poonamallee Road,Chennai,Manapakkam,13.0176,80.1711,Specialty,Orthopedics|Cardiology|Neurology,Yes,044-22490000,4.5
+4,Kauvery Hospital,199 Luz Church Road,Chennai,Mylapore,13.0368,80.2676,General,General Medicine|Cardiology|Pediatrics,Yes,044-40006000,4.5
+5,Sri Ramachandra Medical Centre,1 Ramachandra Nagar,Chennai,Porur,13.0339,80.1568,Specialty,Neurology|Cardiology|Oncology,Yes,044-45928888,4.4
+6,Vijaya Hospital,434 NSK Salai,Chennai,Vadapalani,13.0521,80.2121,General,General Medicine|Gynecology|Pediatrics,Yes,044-24809000,4.3
+7,Sundaram Medical Foundation,4 Shafee Mohammed Road,Chennai,Anna Nagar,13.0850,80.2101,General,General Medicine|Orthopedics|Cardiology,Yes,044-26281919,4.2
+8,Madras Medical Mission,4A Dr. J. Jayalalitha Nagar,Chennai,Mogappair,13.0868,80.1747,Specialty,Cardiology|Nephrology|Transplant,Yes,044-26565961,4.6
+9,Global Hospital,439 Cheran Nagar,Chennai,Perumbakkam,12.9252,80.2108,Specialty,Liver Transplant|Cardiology|Neurology,Yes,044-44777000,4.5
+10,Stanley Medical College Hospital,Old Jail Road,Chennai,Park Town,13.1020,80.2870,General,General Medicine|Emergency|Surgery,Yes,044-25281427,4.0
+11,PSG Hospitals,Avinashi Road,Coimbatore,Peelamedu,11.0238,77.0243,Specialty,Cardiology|Oncology|Neurology,Yes,0422-4345678,4.6
+12,Kovai Medical Center,99 Avanashi Road,Coimbatore,Avinashi Road,11.0274,77.0298,Specialty,Cardiology|Orthopedics|Nephrology,Yes,0422-4323800,4.5
+13,G.Kuppuswamy Naidu Memorial Hospital,Post Box 6327 Nethaji Road,Coimbatore,Papanaickenpalayam,11.0050,76.9820,General,General Medicine|Cardiology|Pediatrics,Yes,0422-2212555,4.3
+14,Aravind Eye Hospital,Avinashi Road,Coimbatore,Peelamedu,11.0238,77.0200,Specialty,Ophthalmology,No,0422-4360000,4.8
+15,Sri Ramakrishna Hospital,395 Sarojini Naidu Road,Coimbatore,Sidhapudur,11.0050,76.9700,General,General Medicine|Surgery|Gynecology,Yes,0422-4500000,4.4
+16,Meenakshi Mission Hospital,Lake Area,Madurai,Melur Road,9.9252,78.1198,Specialty,Cardiology|Neurology|Orthopedics,Yes,0452-2588741,4.5
+17,Apollo Specialty Hospital,Lake Area,Madurai,Melur Road,9.9300,78.1250,Specialty,Oncology|Cardiology|Neurology,Yes,0452-2580000,4.6
+18,Government Rajaji Hospital,Panagal Road,Madurai,Panagal,9.9195,78.1193,General,General Medicine|Emergency|Surgery,Yes,0452-2532535,4.0
+19,Velammal Medical College Hospital,Anuppanadi,Madurai,Madurai East,9.9588,78.1377,General,General Medicine|Pediatrics|Surgery,Yes,0452-2279999,4.2
+20,KG Hospital,5 Royal Road,Coimbatore,Race Course,11.0021,76.9746,Specialty,Cardiology|Nephrology|Urology,Yes,0422-2212222,4.4
+21,Billroth Hospital,43 Lakshmi Talkies Road,Salem,Junction,11.6643,78.1460,General,General Medicine|Surgery|Orthopedics,Yes,0427-2230000,4.3
+22,Government Mohan Kumaramangalam Medical College Hospital,Maravaneri,Salem,Maravaneri,11.6515,78.1548,General,General Medicine|Emergency|Pediatrics,Yes,0427-2261401,4.0
+23,Vinayaka Missions Medical College,Sankari Main Road,Salem,Ariyanoor,11.6401,78.0987,General,General Medicine|Surgery|Gynecology,Yes,0427-3988333,4.1
+24,Maruthi Hospital,76 Cherry Road,Salem,Cherry Road,11.6550,78.1520,General,General Medicine|Cardiology|Pediatrics,Yes,0427-2225555,4.2
+25,Royal Care Super Speciality Hospital,726/3 Trichy Road,Coimbatore,Siddhapudur,11.0150,76.9850,Specialty,Cardiology|Neurology|Oncology,Yes,0422-6677000,4.5
+26,Government Hospital Tiruchirappalli,Puthur,Tiruchirappalli,Puthur,10.8050,78.6856,General,General Medicine|Emergency|Surgery,Yes,0431-2700000,4.0
+27,Kavery Medical Centre,111 Venkatesh Nagar,Tiruchirappalli,Cantonment,10.8231,78.6950,General,General Medicine|Cardiology|Orthopedics,Yes,0431-2746001,4.3
+28,Sriram Medical College,Trichy Pudukkottai Road,Tiruchirappalli,Senthaneerpuram,10.7652,78.7612,General,General Medicine|Surgery|Pediatrics,Yes,0431-2670444,4.1
+29,Annai Arul Hospital,76 Karur Bypass Road,Tiruchirappalli,Woraiyur,10.8350,78.7100,General,General Medicine|Gynecology|Pediatrics,No,0431-2761111,4.0
+30,Government Villupuram Medical College Hospital,Anna Salai,Villupuram,Mundiyampakkam,11.9399,79.4905,General,General Medicine|Emergency|Surgery,Yes,04146-222222,3.9
+31,Tirunelveli Medical College Hospital,High Ground Road,Tirunelveli,High Ground,8.7139,77.7567,General,General Medicine|Emergency|Surgery,Yes,0462-2572552,4.0
+32,Kovai Medical Center Tirunelveli,Junction Road,Tirunelveli,Junction,8.7280,77.7010,Specialty,Cardiology|Orthopedics|Neurology,Yes,0462-2501111,4.4
+33,Government Hospital Vellore,Adukkamparai,Vellore,Adukkamparai,12.9165,79.1325,General,General Medicine|Emergency|Surgery,Yes,0416-2225000,4.0
+34,Christian Medical College,Ida Scudder Road,Vellore,Scudder Road,12.9241,79.1353,Specialty,Cardiology|Neurology|Oncology|Transplant,Yes,0416-2281000,4.9
+35,Aravind Eye Hospital Tirunelveli,Tirunelveli Junction,Tirunelveli,Junction,8.7270,77.6980,Specialty,Ophthalmology,No,0462-2501234,4.8
+36,Kauvery Hospital Trichy,6/2 Royal Road,Tiruchirappalli,Cantonment,10.8220,78.6930,Specialty,Cardiology|Neurology|Orthopedics,Yes,0431-4077777,4.5
+37,Government Erode Medical College,Perundurai Road,Erode,Perundurai,11.3410,77.7172,General,General Medicine|Emergency|Surgery,Yes,0424-2225000,3.9
+38,Erode General Hospital,EVN Road,Erode,Town,11.3410,77.7270,General,General Medicine|Pediatrics|Gynecology,Yes,0424-2256789,4.0
+39,Ponni Hospital,Thiruvalluvar Salai,Erode,Rangampalayam,11.3560,77.7320,General,General Medicine|Surgery|Orthopedics,No,0424-2278900,4.1
+40,Government Dharmapuri Medical College,Nethaji Bypass Road,Dharmapuri,Thoppur Road,12.1211,78.1582,General,General Medicine|Emergency|Surgery,Yes,04342-268100,3.8
+41,Thanjavur Medical College Hospital,Thanjavur,Thanjavur,Town,10.7860,79.1378,General,General Medicine|Emergency|Surgery,Yes,04362-227777,4.1
+42,Aravind Eye Hospital Madurai,1 Anna Nagar,Madurai,Anna Nagar,9.9312,78.1198,Specialty,Ophthalmology,No,0452-4356100,4.8
+43,Government Pudukottai Medical College,Pudukottai,Pudukottai,Town,10.3797,78.8197,General,General Medicine|Emergency|Surgery,Yes,04322-221666,3.8
+44,Karpaga Vinayaga Medical College,Padalam,Kanchipuram,Maduranthagam,12.5200,79.9200,General,General Medicine|Surgery|Pediatrics,Yes,044-27552255,4.0
+45,Chettinad Health City,Rajiv Gandhi Salai,Chennai,Kelambakkam,12.7907,80.2181,Specialty,Cardiology|Neurology|Oncology,Yes,044-47417417,4.4
+46,SRM Medical College Hospital,Kattankulathur,Kanchipuram,Kattankulathur,12.8231,80.0444,General,General Medicine|Surgery|Cardiology,Yes,044-27417777,4.2
+47,Government Nagapattinam Medical College,Nagapattinam,Nagapattinam,Town,10.7660,79.8442,General,General Medicine|Emergency|Surgery,Yes,04365-255255,3.8
+48,Devaki Hospital,148 Luz Church Road,Chennai,Mylapore,13.0372,80.2682,General,General Medicine|Gynecology|Pediatrics,No,044-24617000,4.2
+49,Rela Institute,CLC Works Road,Chennai,Chromepet,12.9516,80.1462,Specialty,Liver Transplant|Hepatology|Gastroenterology,Yes,044-22001066,4.7
+50,Government Kilpauk Medical College,Poonamallee High Road,Chennai,Kilpauk,13.0785,80.2411,General,General Medicine|Emergency|Psychiatry,Yes,044-26413500,4.1

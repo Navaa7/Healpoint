@@ -1,0 +1,311 @@
+/* ================================================================
+   HEALPOINT — login.css
+   Layout  : Full image LEFT  |  Clean white form RIGHT
+   Style   : Minimal, sharp typography, matches Realnest pattern
+================================================================ */
+
+
+/* ── 1. TOKENS ──────────────────────────────────────────── */
+:root {
+  --accent      : #b8e04a;
+  --accent-dark : #7aaa1a;
+  --accent-glow : rgba(184,224,74,0.15);
+  --accent-line : rgba(184,224,74,0.35);
+
+  --bg          : #ffffff;
+  --bg-input    : #f7f7f5;
+
+  --text-h      : #111110;
+  --text-b      : #323200;
+  --text-dim    : #6d6d6d;
+
+  --border      : rgba(0,0,0,0.09);
+  --border-s    : rgba(0,0,0,0.14);
+
+  --r           : 10px;
+  --r-pill      : 100px;
+  --ease        : cubic-bezier(0.16,1,0.3,1);
+}
+
+
+/* ── 2. RESET ────────────────────────────────────────────── */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html  { font-size:16px; height:100%; }
+body  {
+  font-family : 'Satoshi', 'DM Sans', sans-serif;
+  background  : var(--bg);
+  color       : var(--text-b);
+  height      : 100%;
+  overflow    : hidden;
+}
+a { text-decoration:none; color:inherit; }
+
+
+/* ── 3. SPLIT LAYOUT ─────────────────────────────────────── */
+.login-page {
+  display               : grid;
+  grid-template-columns : 1fr 1fr;
+  height                : 100vh;
+  min-height            : 600px;
+}
+
+
+/* ════════════════════════════════════════
+   LEFT — Full bleed image
+   ════════════════════════════════════════ */
+.img-panel {
+  position  : relative;
+  overflow  : hidden;
+}
+
+/*
+  ★  YOUR IMAGE  ★
+  ─────────────────────────────────────────
+  Put your file at:
+    static/images/login-cover.jpg
+  Tall / portrait photo works best.
+  ─────────────────────────────────────────
+*/
+.img-panel img {
+  width            : 100%;
+  height           : 100%;
+  object-fit       : cover;
+  object-position  : center;
+  display          : block;
+}
+
+/* Gradient overlay — bottom dark for text */
+.img-panel::after {
+  content     : '';
+  position    : absolute; inset: 0;
+  background  : linear-gradient(
+    to top,
+    rgba(0,0,0,0.70) 0%,
+    rgba(0,0,0,0.12) 55%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Logo — floated top-left, frosted pill */
+.img-logo {
+  position    : absolute; top: 24px; left: 24px; z-index: 10;
+  display     : flex; align-items: center; gap: 8px;
+  background  : rgba(255,255,255,0.15);
+  backdrop-filter: blur(14px);
+  border      : 1px solid rgba(255,255,255,0.22);
+  border-radius: var(--r-pill);
+  padding     : 7px 16px 7px 8px;
+}
+
+.img-logo-mark {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+}
+.img-logo-mark svg { width:14px; height:14px; }
+
+.img-logo-name {
+  font-family : 'Syne', sans-serif;
+  font-weight : 800; font-size: 15px;
+  color       : #fff; letter-spacing: -0.2px;
+}
+
+/* Caption — bottom-left text over image */
+.img-caption {
+  position    : absolute; bottom: 36px; left: 32px; right: 32px; z-index: 10;
+}
+
+.img-caption h2 {
+  font-family : 'Syne', sans-serif;
+  font-weight : 800;
+  font-size   : clamp(1.5rem, 2.4vw, 2.1rem);
+  line-height : 1.15; 
+  letter-spacing: -0.025em;
+  color       : #fff; margin-bottom: 8px;
+}
+
+.img-caption p {
+  font-size   : 13px; color: rgba(255,255,255,0.58);
+  font-weight : 300; line-height: 1.6;
+}
+
+/* Dot indicators like the reference */
+.img-dots { display: flex; gap: 6px; margin-top: 16px; }
+.dot      { width: 20px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.3); }
+.dot.active { background: var(--accent); width: 32px; }
+
+
+/* ════════════════════════════════════════
+   RIGHT — Login form
+   ════════════════════════════════════════ */
+.form-panel {
+  background      : var(--bg);
+  display         : flex;
+  flex-direction  : column;
+  align-items     : center;
+  justify-content : center;
+  padding         : 48px 64px;
+  overflow-y      : auto;
+  position        : relative;
+}
+
+/* "Back" link — top right */
+.back-link {
+  position    : absolute; top: 24px; right: 24px;
+  font-size   : 13px; font-weight: 600; color: var(--text-h);
+  padding     : 8px 20px; border-radius: var(--r-pill);
+  border      : 1.5px solid var(--border-s); background: transparent;
+  transition  : all .2s; display: inline-flex; align-items: center; gap: 5px;
+}
+.back-link:hover { background: var(--text-h); color: #fff; border-color: var(--text-h); }
+
+/* Form constraint */
+.form-wrap { width: 100%; max-width: 360px; }
+
+/* Title block — like "Welcome Back to Realnest!" */
+.form-title {
+  font-family   : 'Syne', sans-serif;
+  font-weight   : 800;
+  font-size     : clamp(1.6rem, 2.2vw, 2rem);
+  letter-spacing: -0.025em;
+  color         : var(--text-h);
+  margin-bottom : 6px; line-height: 1.15;
+}
+
+.form-sub {
+  font-size     : 13.5px; color: var(--text-dim);
+  font-weight   : 300; margin-bottom: 26px;
+}
+.form-sub a {
+  color: var(--accent-dark); font-weight: 600;
+  border-bottom: 1px solid var(--accent-line); transition: color .2s;
+}
+.form-sub a:hover { color: var(--text-h); }
+
+/* Field groups */
+.field-group   { margin-bottom: 14px; }
+.field-label   {
+  display: block; font-size: 12.5px; font-weight: 600;
+  color: var(--text-b); margin-bottom: 7px;
+}
+.input-wrap    { position: relative; }
+.input-icon    {
+  position: absolute; left: 13px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px; pointer-events: none; opacity: 0.38;
+}
+.form-input {
+  width: 100%; padding: 12px 14px 12px 40px;
+  border-radius: var(--r); border: 1.5px solid var(--border-s);
+  background: var(--bg-input); color: var(--text-h);
+  font-size: 14px; font-family: inherit; outline: none;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+}
+.form-input::placeholder { color: var(--text-dim); font-size: 13.5px; }
+.form-input:focus {
+  border-color: var(--accent); background: #fff;
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.pw-toggle {
+  position: absolute; right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; font-size: 15px;
+  cursor: pointer; opacity: 0.38; padding: 4px;
+  transition: opacity .2s;
+}
+.pw-toggle:hover { opacity: .75; }
+
+/* Remember me row */
+.remember-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin: 6px 0 20px;
+}
+.remember-check {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 13px; color: var(--text-b);
+  cursor: pointer; user-select: none;
+}
+.remember-check input[type="checkbox"] {
+  width: 15px; height: 15px;
+  accent-color: var(--accent-dark); cursor: pointer;
+}
+.forgot-link {
+  font-size: 12.5px; color: var(--text-dim); transition: color .2s;
+}
+.forgot-link:hover { color: var(--text-h); }
+
+/* Login button */
+.btn-login {
+  width: 100%; padding: 13px; border-radius: var(--r); border: none;
+  background: var(--text-h); color: #fff;
+  font-size: 15px; font-weight: 700; font-family: 'Syne', sans-serif;
+  letter-spacing: -0.01em; cursor: pointer; margin-bottom: 18px;
+  transition: background .2s, transform .15s;
+}
+.btn-login:hover  { background: #2a2a25; }
+.btn-login:active { transform: scale(0.99); }
+
+/* OR divider */
+.or-divider {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.or-line { flex: 1; height: 1px; background: var(--border); }
+.or-text { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+
+/* Social buttons */
+.social-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 22px;
+}
+.btn-social {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 10px 12px; border-radius: var(--r);
+  border: 1.5px solid var(--border-s); background: var(--bg);
+  font-size: 13px; font-weight: 600; color: var(--text-h);
+  cursor: pointer; font-family: inherit; transition: box-shadow .2s, border-color .2s;
+}
+.btn-social:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.btn-social svg   { width: 17px; height: 17px; flex-shrink: 0; }
+
+/* Bottom link */
+.form-footer {
+  text-align: center; font-size: 13px; color: var(--text-dim);
+  border-top: 1px solid var(--border); padding-top: 16px;
+}
+.form-footer a { color: var(--text-b); font-weight: 600; transition: color .2s; }
+.form-footer a:hover { color: var(--text-h); }
+
+.admin-row {
+  text-align: center; font-size: 12px;
+  color: var(--text-dim); margin-top: 10px;
+}
+.admin-row a { color: var(--text-dim); font-weight: 500; transition: color .2s; }
+.admin-row a:hover { color: var(--text-h); }
+
+/* Flash messages */
+.flash-msg {
+  padding: 11px 14px; border-radius: var(--r);
+  font-size: 13px; font-weight: 500; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+  animation: fadeUp .4s var(--ease) both;
+}
+.flash-msg.error   { background:rgba(239,68,68,.07);  border:1px solid rgba(239,68,68,.2);  color:#b91c1c; }
+.flash-msg.success { background:rgba(184,224,74,.10); border:1px solid var(--accent-line);  color:#3a6010; }
+.flash-msg.info    { background:rgba(0,0,0,.04);      border:1px solid var(--border-s);     color:var(--text-b); }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  body        { overflow: auto; }
+  .login-page { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
+  .img-panel  { display: none; }
+  .form-panel { padding: 64px 28px 48px; min-height: 100vh; }
+  .back-link  { top: 16px; right: 16px; }
+}
